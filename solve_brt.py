@@ -7,13 +7,13 @@ import os
 
 from dynamics import PursuitEvasion
 
-os.makedirs('outputs', exist_ok=True)
+os.makedirs('outputs/plots', exist_ok=True)
+os.makedirs('outputs/data', exist_ok=True)
 
 # Grid resolution, can scale up
-# coarse:    (11, 11, 11, 11, 11, 11)
-# medium: (21, 21, 21, 21, 21, 21)
-# fine: (31, 31, 31, 31, 31, 31)
-GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
+GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse
+# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
+# GRID_RESOLUTION = (31, 31, 31, 31, 31, 31) # fine
 
 R_CAPTURE = 1.0
 
@@ -25,6 +25,10 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
         np.array([-5., -5., -5., -5., -5., -5.]),
         np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     ),
+    # hj.sets.Box(
+    #     np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
+    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    # ),
     GRID_RESOLUTION
 )
 
@@ -41,6 +45,8 @@ failure_values = (
 )
 
 times = np.linspace(0, -5, 101, endpoint=True)
+# times = np.linspace(0, -0.001, 2, endpoint=True) # to check for initial BRT
+
 solver_settings = hj.SolverSettings.with_accuracy(
     'very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
@@ -51,11 +57,11 @@ print(f'Solving BRT with grid resolution {GRID_RESOLUTION}...')
 values = hj.solve(solver_settings, dynamics_obj, grid, times, failure_values)
 
 # save outputs (for simulate.py and plot.py to use)
-np.save('outputs/values.npy', np.array(values))
-np.save('outputs/times.npy', times)
-print('Saved BRT to outputs/')
+np.save('outputs/data/values.npy', np.array(values))
+np.save('outputs/data/times.npy', times)
+print('Saved BRT to outputs/data/')
 
-# safe set volume using random sampling
+# safe set volume using random sampling (smae as hw2)
 values_converged = values[-1]
 values_converged_interpolator = RegularGridInterpolator(
     ([np.array(v) for v in grid.coordinate_vectors]),
@@ -63,11 +69,14 @@ values_converged_interpolator = RegularGridInterpolator(
     bounds_error=False,
     fill_value=None
 )
-num_samples = int(1e5)  # smaller for speed, increase on compute engine
+num_samples = int(1e5)  # smaller for speed, can increase on compute engine later
 batch_size  = int(1e3)
 num_batches = int(num_samples / batch_size)
-sample_min = np.array([-5., -5., -5., -5., -5., -5.])
-sample_max = np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
+# sample_min = np.array([-5., -5., -5., -5., -5., -5.])
+# sample_max = np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
+sample_min = np.array([-8., -8., -8., -8., -8., -8.])
+sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+
 num_safe = 0
 for _ in tqdm(range(num_batches)):
     samples = np.random.uniform(

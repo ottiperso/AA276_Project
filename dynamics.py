@@ -4,7 +4,7 @@ from hj_reachability import dynamics, sets
 
 # Control bounds (pursuer more capable than evader)
 F_P_MAX = 2.50  # pursuer thrust bound
-F_E_MAX = 1.50  # evader thrust bound
+F_E_MAX = 2.40  # evader thrust bound
 
 class PursuitEvasion(dynamics.ControlAndDisturbanceAffineDynamics):
     # 6D relative state (instead of 2D pendulum)
