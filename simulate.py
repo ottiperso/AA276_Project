@@ -140,14 +140,14 @@ def simulate(z0, nt, dt=0.01):
         # v_E[2] += float(F_E) * dt
         # p_E[i+1] = p_E[i] + v_E * dt
 
+        # pursuer: only F_P affects vz
+        # v_P[2] += float(F_P) * dt
+        # p_P[i+1] = p_P[i] + v_P * dt
+
         p_E[i+1] = p_E[i] + v_E * dt  # position first
         p_P[i+1] = p_P[i] + v_P * dt
         v_E[2] += float(F_E) * dt     # then velocity
         v_P[2] += float(F_P) * dt
-
-        # pursuer: only F_P affects vz
-        v_P[2] += float(F_P) * dt
-        p_P[i+1] = p_P[i] + v_P * dt
 
         dist = np.sqrt(z[0]**2 + z[1]**2 + z[2]**2)
         if dist <= 1.0:
