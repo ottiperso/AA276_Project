@@ -174,11 +174,11 @@ def simulate(z0, nt, dt=0.01):
 # z0_outside = np.array([0., 0., 4., 0., 0., 0.])
 
 initial_conditions = {
-    'inside_closing':    np.array([0., 0., -1.5, 0., 0.,  1.5]),  # approaching, captures fast
-    'inside_slow':       np.array([0., 0.,  1.5, 0., 0., -0.5]),  # just inside, slow — should still capture
-    'boundary':          np.array([0., 0.,  2.0, 0., 0.,  0.5]),  # keep this, it looks good
-    'outside_retreating':np.array([0., 0.,  3.0, 0., 0.,  2.0]),  # moving away with velocity
-    'outside_stationary':np.array([0., 0.,  4.0, 0., 0.,  0.0]),  # far, zero velocity — evader builds escape
+    'inside_closing':    np.array([0., 0., -1.5, 0., 0.,  1.5]), 
+    'inside_slow':       np.array([0., 0.,  1.5, 0., 0., -0.5]), 
+    'boundary':          np.array([0., 0.,  1.9, 0., 0.,  0.5]),
+    'outside_retreating':np.array([0., 0.,  3.0, 0., 0.,  2.0]),
+    'outside_stationary':np.array([0., 0.,  4.0, 0., 0.,  0.0]), 
 }
 
 dt = 0.01
