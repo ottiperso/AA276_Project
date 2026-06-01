@@ -174,16 +174,11 @@ def simulate(z0, nt, dt=0.01):
 # z0_outside = np.array([0., 0., 4., 0., 0., 0.])
 
 initial_conditions = {
-    # inside BRT: pursuer captures
-    'inside_closing':   np.array([0., 0., -1.5, 0., 0.,  1.5]),  # approaching fast, classic capture
-    'inside_slow':      np.array([0., 0.,  1.8, 0., 0., -0.5]),  # just inside, slow relative motion
-
-    # on boundary
-    'boundary':         np.array([0., 0.,  2.0, 0., 0.,  0.5]),  # near V=0 contour
-
-    # outside BRT: evader escapes
-    'outside_retreating': np.array([0., 0.,  3.0, 0., 0.,  2.0]),  # moving away with velocity
-    'outside_stationary': np.array([0., 0.,  4.0, 0., 0.,  0.0]),  # far, no initial velocity
+    'inside_closing':    np.array([0., 0., -1.5, 0., 0.,  1.5]),  # approaching, captures fast
+    'inside_slow':       np.array([0., 0.,  1.5, 0., 0., -0.5]),  # just inside, slow — should still capture
+    'boundary':          np.array([0., 0.,  2.0, 0., 0.,  0.5]),  # keep this, it looks good
+    'outside_retreating':np.array([0., 0.,  3.0, 0., 0.,  2.0]),  # moving away with velocity
+    'outside_stationary':np.array([0., 0.,  4.0, 0., 0.,  0.0]),  # far, zero velocity — evader builds escape
 }
 
 dt = 0.01
