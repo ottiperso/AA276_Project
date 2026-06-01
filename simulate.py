@@ -74,7 +74,8 @@ def pursuer_optimal(z):
 
 # evader bang-bang: maximize V (opposite sign of disturbance gradient)
 def evader_optimal(z):
-    return -np.sign(beta5s_converged_interpolator(z.reshape(1, -1))) * F_E_MAX
+    z_clipped = np.clip(z, -7.9, 7.9)
+    return -np.sign(beta5s_converged_interpolator(z_clipped.reshape(1, -1))) * F_E_MAX
 
 # CONTROLLERS
 def pursuer_control(z):
@@ -115,7 +116,8 @@ def simulate(z0, nt, dt=0.01):
     # evader velocity
     # evader vel = 0 , pursuer starts at rel velocity
     v_E = np.array([0., 0., 0.])
-    v_P = z0[3:]
+    # v_P = z0[3:]
+    v_P = np.array(z0[3:], dtype=float)
 
     captured = False
     for i in tqdm(range(nt)):
@@ -135,8 +137,13 @@ def simulate(z0, nt, dt=0.01):
 
         # update individual drone states
         # evader: only F_E affects vz
-        v_E[2] += float(F_E) * dt
-        p_E[i+1] = p_E[i] + v_E * dt
+        # v_E[2] += float(F_E) * dt
+        # p_E[i+1] = p_E[i] + v_E * dt
+
+        p_E[i+1] = p_E[i] + v_E * dt  # position first
+        p_P[i+1] = p_P[i] + v_P * dt
+        v_E[2] += float(F_E) * dt     # then velocity
+        v_P[2] += float(F_P) * dt
 
         # pursuer: only F_P affects vz
         v_P[2] += float(F_P) * dt

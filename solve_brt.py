@@ -45,7 +45,7 @@ failure_values = (
     ) - R_CAPTURE
 )
 
-times = np.linspace(0, -5, 101, endpoint=True)
+times = np.linspace(0, -10, 101, endpoint=True)
 # times = np.linspace(0, -0.001, 2, endpoint=True) # to check for initial BRT
 
 solver_settings = hj.SolverSettings.with_accuracy(
