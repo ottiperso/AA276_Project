@@ -527,13 +527,13 @@
 
 # plot_brt_only(values_converged_interpolator)
 
-
 import numpy as np
 import jax.numpy as jnp
 import hj_reachability as hj
 from scipy.interpolate import RegularGridInterpolator
 import matplotlib.pyplot as plt
 import matplotlib
+from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 matplotlib.use('Agg')
 
 from dynamics import PursuitEvasion, F_P_MAX, F_E_MAX
@@ -596,11 +596,17 @@ V_slice = values_converged_interpolator(slice_pts).reshape(DVZ.shape)
 
 dt = 0.01
 
-# ── Figure 1: BRT slice + all trajectories + relative distance + control profiles ──
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+# ── Figure 1: BRT slice + relative distance + 5 control profile subplots ──
+fig = plt.figure(figsize=(24, 8))
+gs = GridSpec(1, 3, figure=fig, wspace=0.35)
+
+ax_brt  = fig.add_subplot(gs[0])
+ax_dist = fig.add_subplot(gs[1])
+gs_ctrl = GridSpecFromSubplotSpec(5, 1, subplot_spec=gs[2], hspace=0.7)
+ctrl_axes = [fig.add_subplot(gs_ctrl[i]) for i in range(5)]
 
 # plot 1: BRT slice + all trajectories overlaid
-ax = axes[0]
+ax = ax_brt
 ax.pcolormesh(dpz, dvz, V_slice, cmap='RdBu', vmin=-3, vmax=3)
 ax.contour(dpz, dvz, V_slice, levels=[0], colors='k', linewidths=2)
 for name in IC_NAMES:
@@ -614,7 +620,7 @@ ax.set_title(r'BRT slice ($\Delta p_x=\Delta p_y=0$, $\Delta v_x=\Delta v_y=0$)'
 ax.legend(fontsize=7)
 
 # plot 2: relative distance over time for all ICs
-ax = axes[1]
+ax = ax_dist
 for name in IC_NAMES:
     zs = results[name]['zs']
     t = np.arange(len(zs)) * dt
@@ -627,22 +633,25 @@ ax.set_title('Relative distance over time')
 ax.legend(fontsize=7)
 ax.grid(True)
 
-# plot 3: control profiles for all ICs
-ax = axes[2]
-for name in IC_NAMES:
+# plot 3: 5 separate control profile subplots
+for i, name in enumerate(IC_NAMES):
+    ax = ctrl_axes[i]
     FPs = results[name]['FPs']
     FEs = results[name]['FEs']
     t_ctrl = np.arange(len(FPs)) * dt
-    ax.plot(t_ctrl, FPs, color=IC_COLORS[name], linewidth=1.5, label=f'Pursuer ({name})')
-    ax.plot(t_ctrl, FEs, color=IC_COLORS[name], linewidth=1.5, linestyle='--', label=f'Evader ({name})')
-ax.set_xlabel('Time (s)')
-ax.set_ylabel('Thrust (N)')
-ax.set_title('Control profiles (bang-bang)')
-ax.legend(fontsize=6)
-ax.grid(True)
+    ax.plot(t_ctrl, FPs, color=IC_COLORS[name], linewidth=1.2, label='Pursuer')
+    ax.plot(t_ctrl, FEs, color=IC_COLORS[name], linewidth=1.2, linestyle='--', label='Evader')
+    ax.set_ylabel('N', fontsize=7)
+    ax.set_title(name, fontsize=7)
+    ax.tick_params(labelsize=6)
+    ax.grid(True)
+    ax.legend(fontsize=6)
+    if i < len(IC_NAMES) - 1:
+        ax.set_xticklabels([])
+    else:
+        ax.set_xlabel('Time (s)', fontsize=7)
 
-fig.tight_layout()
-fig.savefig('outputs/plots/pursuit_evasion.png')
+fig.savefig('outputs/plots/pursuit_evasion.png', bbox_inches='tight')
 print('Saved plot to outputs/plots/pursuit_evasion.png')
 
 # ── Figure 2: per-IC detail plots ──
@@ -753,10 +762,6 @@ def plot_brt_only(values_converged_interpolator):
     pcm2 = ax.pcolormesh(dpz, dvz, V_vel, cmap='RdBu', shading='auto')
     ax.contour(dpz, dvz, V_vel, levels=[0], colors='k', linewidths=2)
     ax.contourf(dpz, dvz, V_vel, levels=[V_vel.min(), 0], colors=['red'], alpha=0.3)
-    # overlay all trajectories on the phase-plane BRT
-    for name in IC_NAMES:
-        zs = results[name]['zs']
-        ax.plot(zs[:, 2], zs[:, 5], color=IC_COLORS[name], linewidth=2, label=name)
     ax.axvline(-1.0, color='g', linestyle='--', linewidth=2, label='Capture radius')
     ax.axvline( 1.0, color='g', linestyle='--', linewidth=2)
     ax.set_xlabel(r'$\Delta p_z$ (m)')
