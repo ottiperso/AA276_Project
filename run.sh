@@ -1,5 +1,6 @@
 #!/bin/bash
-mkdir -p outputs
+mkdir -p outputs/plots
+mkdir -p outputs/data
 echo "Step 1: Solving BRT..."
 python solve_brt.py
 echo "Step 2: Simulating..."

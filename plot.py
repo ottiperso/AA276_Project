@@ -21,18 +21,18 @@ FPs_out = np.load('outputs/data/FPs_outside.npy')
 FEs_out = np.load('outputs/data/FEs_outside.npy')
 
 # same grid as solve_brt.py
-GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
-# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
+# GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
+GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
-    hj.sets.Box(
-        np.array([-5., -5., -5., -5., -5., -5.]),
-        np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
-    ),
     # hj.sets.Box(
-    #     np.array([-8., -8., -8., -8., -8., -8.]),
-    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    #     np.array([-5., -5., -5., -5., -5., -5.]),
+    #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     # ),
+    hj.sets.Box(
+        np.array([-8., -8., -8., -8., -8., -8.]),
+        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    ),
     GRID_RESOLUTION
 )
 
@@ -49,10 +49,10 @@ values_converged_interpolator = RegularGridInterpolator(
 # plot delta_px vs delta_pz
 # like hw2: plot_value_and_safe_set_boundary
 
-dpx = np.linspace(-5, 5, 101)
-dpz = np.linspace(-5, 5, 101)
-# dpx = np.linspace(-8, 8, 101)
-# dpz = np.linspace(-8, 8, 101)
+# dpx = np.linspace(-5, 5, 101)
+# dpz = np.linspace(-5, 5, 101)
+dpx = np.linspace(-8, 8, 101)
+dpz = np.linspace(-8, 8, 101)
 
 DPX, DPZ = np.meshgrid(dpx, dpz)
 slice_pts = np.stack([
@@ -185,10 +185,10 @@ def plot_brt_only(values_converged_interpolator):
     Axes:
         delta_px vs delta_pz
     """
-    dpx = np.linspace(-5, 5, 201)
-    dpz = np.linspace(-5, 5, 201)
-    # dpx = np.linspace(-8, 8, 201)
-    # dpz = np.linspace(-8, 8, 201)
+    # dpx = np.linspace(-5, 5, 201)
+    # dpz = np.linspace(-5, 5, 201)
+    dpx = np.linspace(-8, 8, 201)
+    dpz = np.linspace(-8, 8, 201)
 
     DPX, DPZ = np.meshgrid(dpx, dpz)
 

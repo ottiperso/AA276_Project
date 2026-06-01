@@ -11,8 +11,8 @@ os.makedirs('outputs/plots', exist_ok=True)
 os.makedirs('outputs/data', exist_ok=True)
 
 # Grid resolution, can scale up
-GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse
-# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
+# GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse
+GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
 # GRID_RESOLUTION = (31, 31, 31, 31, 31, 31) # fine
 
 R_CAPTURE = 1.0
@@ -21,14 +21,14 @@ R_CAPTURE = 1.0
 # state = [delta_px, delta_py, delta_pz, delta_vx, delta_vy, delta_vz]
 # same struct as HW2: Box lo/hi, grid resolution
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
-    hj.sets.Box(
-        np.array([-5., -5., -5., -5., -5., -5.]),
-        np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
-    ),
     # hj.sets.Box(
-    #     np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
-    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    #     np.array([-5., -5., -5., -5., -5., -5.]),
+    #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     # ),
+    hj.sets.Box(
+        np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
+        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    ),
     GRID_RESOLUTION
 )
 

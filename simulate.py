@@ -13,17 +13,17 @@ times  = np.load('outputs/data/times.npy')
 values_converged = values[-1]
 
 # same grid as solve_brt.py
-GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
-# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
+# GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
+GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
-    hj.sets.Box(
-        np.array([-5., -5., -5., -5., -5., -5.]),
-        np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
-    ),
     # hj.sets.Box(
-    #     np.array([-8., -8., -8., -8., -8., -8.]),
-    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    #     np.array([-5., -5., -5., -5., -5., -5.]),
+    #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     # ),
+    hj.sets.Box(
+        np.array([-8., -8., -8., -8., -8., -8.]),
+        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    ),
     GRID_RESOLUTION
 )
 solver_settings = hj.SolverSettings.with_accuracy(
