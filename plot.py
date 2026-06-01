@@ -527,8 +527,6 @@
 
 # plot_brt_only(values_converged_interpolator)
 
-
-
 import numpy as np
 import jax.numpy as jnp
 import hj_reachability as hj
@@ -551,16 +549,9 @@ FEs_in  = np.load('outputs/data/FEs_inside.npy')
 FPs_out = np.load('outputs/data/FPs_outside.npy')
 FEs_out = np.load('outputs/data/FEs_outside.npy')
 
-# same grid as solve_brt.py
-# GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
-# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
-GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
+GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
-    # hj.sets.Box(
-    #     np.array([-5., -5., -5., -5., -5., -5.]),
-    #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
-    # ),
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
         np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
@@ -568,7 +559,6 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     GRID_RESOLUTION
 )
 
-# interpolator for value function
 values_converged_interpolator = RegularGridInterpolator(
     ([np.array(v) for v in grid.coordinate_vectors]),
     np.array(values_converged),
@@ -576,8 +566,9 @@ values_converged_interpolator = RegularGridInterpolator(
     fill_value=None
 )
 
-# BUG 1 FIX: slice in the plane that control actually lives in: delta_pz vs delta_vz
-# (control only acts on delta_vz, so px vs pz showed no meaningful BRT shape)
+# 2D slice: delta_pz (x-axis) vs delta_vz (y-axis)
+# meshgrid(dpz, dvz): DPZ[i,j]=dpz[j] (x, varies cols), DVZ[i,j]=dvz[i] (y, varies rows)
+# pcolormesh(dpz, dvz, V) expects V[i,j] = value at (dpz[j], dvz[i]) -- matches reshape(DVZ.shape)
 dpz = np.linspace(-8, 8, 101)
 dvz = np.linspace(-8, 8, 101)
 
@@ -585,37 +576,32 @@ DPZ, DVZ = np.meshgrid(dpz, dvz)
 slice_pts = np.stack([
     np.zeros_like(DPZ.ravel()),  # delta_px = 0
     np.zeros_like(DPZ.ravel()),  # delta_py = 0
-    DPZ.ravel(),                 # delta_pz
+    DPZ.ravel(),                 # delta_pz (x)
     np.zeros_like(DPZ.ravel()),  # delta_vx = 0
     np.zeros_like(DPZ.ravel()),  # delta_vy = 0
-    DVZ.ravel(),                 # delta_vz
+    DVZ.ravel(),                 # delta_vz (y)
 ], axis=1)
-V_slice = values_converged_interpolator(slice_pts).reshape(DPZ.shape)
+V_slice = values_converged_interpolator(slice_pts).reshape(DVZ.shape)
 
-# hw2: fig, axes = plt.subplots(2,1)
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
 # plot 1: BRT slice + trajectories
-# like hw2: plot_value_and_safe_set_boundary + trajectory plot
 ax = axes[0]
 ax.pcolormesh(dpz, dvz, V_slice, cmap='RdBu', vmin=-3, vmax=3)
 ax.contour(dpz, dvz, V_slice, levels=[0], colors='k', linewidths=2)
-# BUG 1 FIX: plot delta_pz (index 2) vs delta_vz (index 5) instead of delta_px vs delta_pz
 ax.plot(zs_in[:,  2], zs_in[:,  5], 'g', linewidth=2,
         label=f'Inside BRT (z0={zs_in[0,:3]})')
 ax.plot(zs_out[:, 2], zs_out[:, 5], 'm', linewidth=2,
         label=f'Outside BRT (z0={zs_out[0,:3]})')
-# capture radius: in pz-vz space, show vertical line at pz=±1 (capture boundary projection)
 ax.axvline(-1.0, color='r', linestyle='--', linewidth=1.5, label='Capture radius')
 ax.axvline( 1.0, color='r', linestyle='--', linewidth=1.5)
 ax.set_xlabel(r'$\Delta p_z$ (m)')
 ax.set_ylabel(r'$\Delta v_z$ (m/s)')
 ax.set_title(r'BRT slice ($\Delta p_x=\Delta p_y=0$, $\Delta v_x=\Delta v_y=0$)')
 ax.legend(fontsize=7)
-ax.set_aspect('equal')
+# no set_aspect('equal') -- dpz and dvz have different units
 
 # plot 2: relative distance over time
-# like hw2: control profile plot structure
 ax = axes[1]
 dt = 0.01
 t_in  = np.arange(len(zs_in))  * dt
@@ -624,8 +610,7 @@ dist_in  = np.sqrt(zs_in[:,0]**2  + zs_in[:,1]**2  + zs_in[:,2]**2)
 dist_out = np.sqrt(zs_out[:,0]**2 + zs_out[:,1]**2 + zs_out[:,2]**2)
 ax.plot(t_in,  dist_in,  'g', linewidth=2, label='Inside BRT')
 ax.plot(t_out, dist_out, 'm', linewidth=2, label='Outside BRT')
-ax.axhline(1.0, color='r', linestyle='--', linewidth=1.5,
-           label='Capture radius')
+ax.axhline(1.0, color='r', linestyle='--', linewidth=1.5, label='Capture radius')
 ax.set_xlabel('Time (s)')
 ax.set_ylabel(r'$\|\Delta p\|$ (m)')
 ax.set_title('Relative distance over time')
@@ -633,11 +618,10 @@ ax.legend()
 ax.grid(True)
 
 # plot 3: control profiles
-# like hw2: control profile plot
 ax = axes[2]
-ax.plot(t_in[:-1],  FPs_in,  'g',  linewidth=1.5, label='Pursuer (inside BRT)')
+ax.plot(t_in[:-1],  FPs_in,  'g',   linewidth=1.5, label='Pursuer (inside BRT)')
 ax.plot(t_in[:-1],  FEs_in,  'g--', linewidth=1.5, label='Evader (inside BRT)')
-ax.plot(t_out[:-1], FPs_out, 'm',  linewidth=1.5, label='Pursuer (outside BRT)')
+ax.plot(t_out[:-1], FPs_out, 'm',   linewidth=1.5, label='Pursuer (outside BRT)')
 ax.plot(t_out[:-1], FEs_out, 'm--', linewidth=1.5, label='Evader (outside BRT)')
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Thrust (N)')
@@ -660,8 +644,6 @@ for zs, p_P, p_E, FPs, FEs, label in [
     fig2, axes2 = plt.subplots(1, 3, figsize=(18, 5))
 
     # plot 1: individual drone positions
-    # BUG 5 FIX: p_P and p_E are already correctly tracked in simulate.py;
-    # just make sure we're indexing pz (index 2) which is unchanged
     ax = axes2[0]
     ax.plot(t, p_P[:, 2], 'g', linewidth=2, label='Pursuer $p_z$')
     ax.plot(t, p_E[:, 2], 'm', linewidth=2, label='Evader $p_z$')
@@ -711,61 +693,58 @@ def plot_brt_only(values_converged_interpolator):
     dpz = np.linspace(-8, 8, 201)
     dvz = np.linspace(-8, 8, 201)
 
-    # --- Panel 1: delta_px vs delta_pz (delta_v=0) ---
+    # Panel 1: DPX varies cols (x), DPZ_pos varies rows (y)
     DPX, DPZ_pos = np.meshgrid(dpx, dpz)
     slice_pos = np.stack([
-        DPX.ravel(),                      # delta_px
-        np.zeros_like(DPX.ravel()),       # delta_py = 0
-        DPZ_pos.ravel(),                  # delta_pz
-        np.zeros_like(DPX.ravel()),       # delta_vx = 0
-        np.zeros_like(DPX.ravel()),       # delta_vy = 0
-        np.zeros_like(DPX.ravel()),       # delta_vz = 0
+        DPX.ravel(),
+        np.zeros_like(DPX.ravel()),
+        DPZ_pos.ravel(),
+        np.zeros_like(DPX.ravel()),
+        np.zeros_like(DPX.ravel()),
+        np.zeros_like(DPX.ravel()),
     ], axis=1)
     V_pos = values_converged_interpolator(slice_pos).reshape(DPX.shape)
 
-    # --- Panel 2: delta_pz vs delta_vz (delta_px=delta_py=0, delta_vx=delta_vy=0) ---
+    # Panel 2: DPZ_vel varies cols (x), DVZ varies rows (y)
     DPZ_vel, DVZ = np.meshgrid(dpz, dvz)
     slice_vel = np.stack([
-        np.zeros_like(DPZ_vel.ravel()),   # delta_px = 0
-        np.zeros_like(DPZ_vel.ravel()),   # delta_py = 0
-        DPZ_vel.ravel(),                  # delta_pz
-        np.zeros_like(DPZ_vel.ravel()),   # delta_vx = 0
-        np.zeros_like(DPZ_vel.ravel()),   # delta_vy = 0
-        DVZ.ravel(),                      # delta_vz
+        np.zeros_like(DPZ_vel.ravel()),
+        np.zeros_like(DPZ_vel.ravel()),
+        DPZ_vel.ravel(),
+        np.zeros_like(DPZ_vel.ravel()),
+        np.zeros_like(DPZ_vel.ravel()),
+        DVZ.ravel(),
     ], axis=1)
     V_vel = values_converged_interpolator(slice_vel).reshape(DPZ_vel.shape)
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 7))
 
-    # --- Panel 1: delta_px vs delta_pz ---
+    # Panel 1: delta_px vs delta_pz
     ax = axes[0]
     pcm1 = ax.pcolormesh(dpx, dpz, V_pos, cmap='RdBu', shading='auto')
     ax.contour(dpx, dpz, V_pos, levels=[0], colors='k', linewidths=2)
     ax.contourf(dpx, dpz, V_pos, levels=[V_pos.min(), 0], colors=['red'], alpha=0.3)
-    # capture radius circle (||delta_p||=1 projected to px-pz plane at delta_py=0)
     theta = np.linspace(0, 2*np.pi, 200)
     ax.plot(np.cos(theta), np.sin(theta), 'g--', linewidth=2, label='Capture radius')
     ax.set_xlabel(r'$\Delta p_x$ (m)')
     ax.set_ylabel(r'$\Delta p_z$ (m)')
-    ax.set_title(r'BRT: $\Delta p_x$ vs $\Delta p_z$' '\n'
-                 r'($\Delta p_y=0$, $\Delta v=0$)')
+    ax.set_title(r'BRT: $\Delta p_x$ vs $\Delta p_z$' '\n' r'($\Delta p_y=0$, $\Delta v=0$)')
     ax.set_aspect('equal')
     plt.colorbar(pcm1, ax=ax, label='Value Function V')
     ax.legend()
 
-    # --- Panel 2: delta_pz vs delta_vz ---
+    # Panel 2: delta_pz vs delta_vz
     ax = axes[1]
     pcm2 = ax.pcolormesh(dpz, dvz, V_vel, cmap='RdBu', shading='auto')
     ax.contour(dpz, dvz, V_vel, levels=[0], colors='k', linewidths=2)
     ax.contourf(dpz, dvz, V_vel, levels=[V_vel.min(), 0], colors=['red'], alpha=0.3)
-    # capture radius: vertical lines at delta_pz = ±1
     ax.axvline(-1.0, color='g', linestyle='--', linewidth=2, label='Capture radius')
     ax.axvline( 1.0, color='g', linestyle='--', linewidth=2)
     ax.set_xlabel(r'$\Delta p_z$ (m)')
     ax.set_ylabel(r'$\Delta v_z$ (m/s)')
     ax.set_title(r'BRT: $\Delta p_z$ vs $\Delta v_z$' '\n'
                  r'($\Delta p_x=\Delta p_y=0$, $\Delta v_x=\Delta v_y=0$)')
-    ax.set_aspect('equal')
+    # no set_aspect('equal') -- different units
     plt.colorbar(pcm2, ax=ax, label='Value Function V')
     ax.legend()
 
