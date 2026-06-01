@@ -174,11 +174,11 @@ def simulate(z0, nt, dt=0.01):
 # z0_outside = np.array([0., 0., 4., 0., 0., 0.])
 
 initial_conditions = {
-    'inside_closing':    np.array([0., 0., -1.5, 0., 0.,  1.5]), 
-    'inside_slow':       np.array([0., 0.,  1.5, 0., 0., -0.5]), 
-    'boundary':          np.array([0., 0.,  1.9, 0., 0.,  0.5]),
-    'outside_retreating':np.array([0., 0.,  3.0, 0., 0.,  2.0]),
-    'outside_stationary':np.array([0., 0.,  4.0, 0., 0.,  0.0]), 
+    'inside_brt':   np.array([0., 0., -1.5, 0., 0.,  1.5]),  # approaching, captures fast
+    'inside_far':   np.array([0., 0.,  1.5, 0., 0., -0.5]),  # just inside, slow
+    'boundary':     np.array([0., 0.,  2.0, 0., 0.,  0.5]),  # near V=0 contour
+    'outside_near': np.array([0., 0.,  3.0, 0., 0.,  2.0]),  # outside, retreating
+    'outside_far':  np.array([0., 0.,  4.0, 0., 0.,  0.0]),  # far, zero velocity
 }
 
 dt = 0.01
