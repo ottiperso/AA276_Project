@@ -167,45 +167,74 @@ def simulate(z0, nt, dt=0.01):
 # two initial conditions to test (6D initial states instead of 2D)
 
 # inside BRT: pursuer should capture
-z0_inside  = np.array([0., 0., -1.5, 0., 0.,  1.5])  # approaching in z
+# z0_inside  = np.array([0., 0., -1.5, 0., 0.,  1.5])  # approaching in z
 
 # outside BRT: evader should escape
-z0_outside = np.array([0.,0.,5.,0.,0.,4.])
+# z0_outside = np.array([0.,0.,5.,0.,0.,4.])
 # z0_outside = np.array([0., 0., 4., 0., 0., 0.])
+
+initial_conditions = {
+    'inside_near':    np.array([0., 0.,  0.5, 0., 0.,  0.0]),  # clearly inside, near origin
+    'inside_far':     np.array([0., 0., -1.5, 0., 0.,  1.5]),  # inside, approaching fast
+    'boundary':       np.array([0., 0.,  2.0, 0., 0.,  1.0]),  # on/near BRT boundary
+    'outside_near':   np.array([0., 0.,  3.0, 0., 0.,  0.0]),  # just outside, visible in plot
+    'outside_far':    np.array([0., 0.,  6.0, 0., 0.,  4.0]),  # far outside, easy escape
+}
 
 dt = 0.01
 nt = int(8.0 / dt)
 
-zs_in,  p_P_in,  p_E_in,  FPs_in,  FEs_in  = simulate(z0_inside,  nt, dt)
-zs_out, p_P_out, p_E_out, FPs_out, FEs_out = simulate(z0_outside, nt, dt)
+# zs_in,  p_P_in,  p_E_in,  FPs_in,  FEs_in  = simulate(z0_inside,  nt, dt)
+# zs_out, p_P_out, p_E_out, FPs_out, FEs_out = simulate(z0_outside, nt, dt)
 
-np.save('outputs/data/zs_inside.npy',   zs_in)
-np.save('outputs/data/zs_outside.npy',  zs_out)
-np.save('outputs/data/p_P_inside.npy',  p_P_in)
-np.save('outputs/data/p_P_outside.npy', p_P_out)
-np.save('outputs/data/p_E_inside.npy',  p_E_in)
-np.save('outputs/data/p_E_outside.npy', p_E_out)
-np.save('outputs/data/FPs_inside.npy',  FPs_in)
-np.save('outputs/data/FPs_outside.npy', FPs_out)
-np.save('outputs/data/FEs_inside.npy',  FEs_in)
-np.save('outputs/data/FEs_outside.npy', FEs_out)
-print('Saved trajectories to outputs/data/')
+# np.save('outputs/data/zs_inside.npy',   zs_in)
+# np.save('outputs/data/zs_outside.npy',  zs_out)
+# np.save('outputs/data/p_P_inside.npy',  p_P_in)
+# np.save('outputs/data/p_P_outside.npy', p_P_out)
+# np.save('outputs/data/p_E_inside.npy',  p_E_in)
+# np.save('outputs/data/p_E_outside.npy', p_E_out)
+# np.save('outputs/data/FPs_inside.npy',  FPs_in)
+# np.save('outputs/data/FPs_outside.npy', FPs_out)
+# np.save('outputs/data/FEs_inside.npy',  FEs_in)
+# np.save('outputs/data/FEs_outside.npy', FEs_out)
+# print('Saved trajectories to outputs/data/')
 
-# V at initial conditions
-V_inside = values_converged_interpolator(z0_inside.reshape(1,-1))
-V_outside = values_converged_interpolator(z0_outside.reshape(1,-1))
-print(f'V at z0_inside: {V_inside}')   # should be < 0 if inside BRT
-print(f'V at z0_outside: {V_outside}') # should be > 0 if outside BRT
+# # V at initial conditions
+# V_inside = values_converged_interpolator(z0_inside.reshape(1,-1))
+# V_outside = values_converged_interpolator(z0_outside.reshape(1,-1))
+# print(f'V at z0_inside: {V_inside}')   # should be < 0 if inside BRT
+# print(f'V at z0_outside: {V_outside}') # should be > 0 if outside BRT
 
-# print(f'min V: {np.array(values_converged).min():.3f}')
-# print(f'max V: {np.array(values_converged).max():.3f}')
+# # print(f'min V: {np.array(values_converged).min():.3f}')
+# # print(f'max V: {np.array(values_converged).max():.3f}')
 
-# find grid points where V < 0 (inside BRT)
-coords = np.array(np.meshgrid(*[np.array(v) for v in grid.coordinate_vectors], indexing='ij')).reshape(6, -1).T
-V_flat = np.array(values_converged).ravel()
-inside_brt = coords[V_flat < 0]
-print(f'Number of BRT points: {len(inside_brt)}')
-print(f'Sample BRT points:\n{inside_brt[:5]}')
+# # find grid points where V < 0 (inside BRT)
+# coords = np.array(np.meshgrid(*[np.array(v) for v in grid.coordinate_vectors], indexing='ij')).reshape(6, -1).T
+# V_flat = np.array(values_converged).ravel()
+# inside_brt = coords[V_flat < 0]
+# print(f'Number of BRT points: {len(inside_brt)}')
+# print(f'Sample BRT points:\n{inside_brt[:5]}')
 
-dist_min = np.sqrt(zs_in[:,0]**2 + zs_in[:,1]**2 + zs_in[:,2]**2).min()
-print(f'Minimum distance reached: {dist_min:.3f} m (capture radius: 1.0 m)')
+# dist_min = np.sqrt(zs_in[:,0]**2 + zs_in[:,1]**2 + zs_in[:,2]**2).min()
+# print(f'Minimum distance reached: {dist_min:.3f} m (capture radius: 1.0 m)')
+
+results = {}
+for name, z0 in initial_conditions.items():
+    print(f'\n=== Simulating {name} (z0={z0}) ===')
+    zs, p_P, p_E, FPs, FEs = simulate(z0, nt, dt)
+    results[name] = dict(zs=zs, p_P=p_P, p_E=p_E, FPs=FPs, FEs=FEs, z0=z0)
+    V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
+    print(f'V(z0) = {V0:.4f} ({"inside" if V0 < 0 else "outside"} BRT)')
+    np.save(f'outputs/data/zs_{name}.npy',   zs)
+    np.save(f'outputs/data/p_P_{name}.npy',  p_P)
+    np.save(f'outputs/data/p_E_{name}.npy',  p_E)
+    np.save(f'outputs/data/FPs_{name}.npy',  FPs)
+    np.save(f'outputs/data/FEs_{name}.npy',  FEs)
+
+print('\nSaved all trajectories.')
+
+# print V values for all ICs -- useful for paper table
+print('\nV(z0) summary:')
+for name, z0 in initial_conditions.items():
+    V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
+    print(f'  {name:20s}: V={V0:+.4f}  z0={z0}')
