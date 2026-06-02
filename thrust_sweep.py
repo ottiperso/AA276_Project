@@ -44,8 +44,8 @@ solver_settings = hj.SolverSettings.with_accuracy(
 sample_min = np.array([-8., -8., -8., -8., -8., -8.])
 sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
 domain_volume = np.prod(sample_max - sample_min)
-num_samples = int(1e5)
-batch_size  = int(1e3)
+num_samples = int(1e6)
+batch_size  = int(1e4)
 num_batches = int(num_samples / batch_size)
 
 
