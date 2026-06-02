@@ -12,9 +12,9 @@ os.makedirs('outputs/data', exist_ok=True)
 
 # Grid resolution, can scale up
 # GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse
-# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
+GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
-GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
+# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
 # GRID_RESOLUTION = (31, 31, 31, 31, 31, 31) # fine
 
 R_CAPTURE = 1.0

@@ -553,9 +553,9 @@ for name in IC_NAMES:
         FEs = np.load(f'outputs/data/FEs_{name}.npy'),
     )
 
-# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
+GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
-GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
+# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(

@@ -15,8 +15,8 @@ values_converged = values[-1]
 # same grid as solve_brt.py
 # GRID_RESOLUTION = (11, 11, 11, 11, 11, 11)
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
-GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
-# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
+# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
+GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     # hj.sets.Box(

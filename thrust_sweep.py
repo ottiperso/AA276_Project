@@ -14,9 +14,9 @@ matplotlib.use('Agg')
 os.makedirs('outputs/plots', exist_ok=True)
 os.makedirs('outputs/data/sweep', exist_ok=True)
 
-# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
+GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
-GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
+# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
 
 R_CAPTURE = 1.0
 F_E_FIXED  = 2.4
