@@ -141,7 +141,7 @@ def plot_results():
 
     ax = axes[0]
     ax.plot(results[:, 0], results[:, 3], 'bo-', linewidth=2, markersize=8)
-    ax.axvline(1.0, color='r', linestyle='--', linewidth=1.5, label='Equal thrust')
+    # ax.axvline(1.0, color='r', linestyle='--', linewidth=1.5, label='Equal thrust')
     ax.set_xlabel('Thrust ratio $F_P / F_E$', fontsize=13)
     ax.set_ylabel('BRT Volume (m$^6$)', fontsize=13)
     ax.set_title('BRT Volume vs Thrust Ratio', fontsize=13)
@@ -150,8 +150,8 @@ def plot_results():
 
     ax = axes[1]
     ax.plot(results[:, 1], results[:, 3], 'go-', linewidth=2, markersize=8)
-    ax.axvline(F_E_FIXED, color='r', linestyle='--', linewidth=1.5,
-               label=f'$F_E$ = {F_E_FIXED} N')
+    # ax.axvline(F_E_FIXED, color='r', linestyle='--', linewidth=1.5,
+    #            label=f'$F_E$ = {F_E_FIXED} N')
     ax.set_xlabel('Pursuer thrust $F_P$ (N)', fontsize=13)
     ax.set_ylabel('BRT Volume (m$^6$)', fontsize=13)
     ax.set_title('BRT Volume vs Pursuer Thrust', fontsize=13)
