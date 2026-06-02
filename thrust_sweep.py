@@ -136,6 +136,9 @@ def plot_results():
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
+    print("DEBUG x values:", results[:, 0].tolist())
+    print("DEBUG y values:", results[:, 3].tolist())
+
     ax = axes[0]
     ax.plot(results[:, 0], results[:, 3], 'bo-', linewidth=2, markersize=8)
     ax.axvline(1.0, color='r', linestyle='--', linewidth=1.5, label='Equal thrust')
