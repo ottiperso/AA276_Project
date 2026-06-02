@@ -12,8 +12,8 @@ os.makedirs('outputs/data', exist_ok=True)
 
 # Grid resolution, can scale up
 # GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse
-GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
-# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
+# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
+GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
 # GRID_RESOLUTION = (31, 31, 31, 31, 31, 31) # fine
 
 R_CAPTURE = 1.0
@@ -26,9 +26,13 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     #     np.array([-5., -5., -5., -5., -5., -5.]),
     #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     # ),
+    # hj.sets.Box(
+    #     np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
+    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    # ),
     hj.sets.Box(
-        np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([-10., -10., -10., -10., -10., -10.]),  
+        np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
     ),
     GRID_RESOLUTION
 )
@@ -45,7 +49,7 @@ failure_values = (
     ) - R_CAPTURE
 )
 
-times = np.linspace(0, -10, 101, endpoint=True)
+times = np.linspace(0, -20, 201, endpoint=True)
 # times = np.linspace(0, -0.001, 2, endpoint=True) # to check for initial BRT
 
 solver_settings = hj.SolverSettings.with_accuracy(
@@ -75,8 +79,10 @@ batch_size  = int(1e3)
 num_batches = int(num_samples / batch_size)
 # sample_min = np.array([-5., -5., -5., -5., -5., -5.])
 # sample_max = np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
-sample_min = np.array([-8., -8., -8., -8., -8., -8.])
-sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+# sample_min = np.array([-8., -8., -8., -8., -8., -8.])
+# sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+sample_min = np.array([-10., -10., -10., -10., -10., -10.])
+sample_max = np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
 
 num_safe = 0
 for _ in tqdm(range(num_batches)):

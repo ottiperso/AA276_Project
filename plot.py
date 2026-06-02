@@ -541,7 +541,7 @@ from dynamics import PursuitEvasion, F_P_MAX, F_E_MAX
 values_converged = np.load('outputs/data/values.npy')[-1]
 
 # load all initial conditions
-IC_NAMES = ['inside_near', 'inside_far', 'boundary', 'outside_near', 'outside_far']
+IC_NAMES = ['inside_brt', 'inside_far', 'boundary', 'outside_near', 'outside_far']
 
 results = {}
 for name in IC_NAMES:
@@ -553,12 +553,17 @@ for name in IC_NAMES:
         FEs = np.load(f'outputs/data/FEs_{name}.npy'),
     )
 
-GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
+# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
+GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
+    # hj.sets.Box(
+    #     np.array([-8., -8., -8., -8., -8., -8.]),
+    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    # ),
     hj.sets.Box(
-        np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([-10., -10., -10., -10., -10., -10.]),  
+        np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
     ),
     GRID_RESOLUTION
 )
@@ -580,8 +585,10 @@ IC_COLORS = {
 }
 
 # 2D slice: delta_pz (x-axis) vs delta_vz (y-axis)
-dpz = np.linspace(-8, 8, 101)
-dvz = np.linspace(-8, 8, 101)
+# dpz = np.linspace(-8, 8, 101)
+# dvz = np.linspace(-8, 8, 101)
+dpz = np.linspace(-10, 10, 101)
+dvz = np.linspace(-10, 10, 101)
 
 DPZ, DVZ = np.meshgrid(dpz, dvz)
 slice_pts = np.stack([
@@ -713,9 +720,13 @@ def plot_brt_only(values_converged_interpolator):
       Left:  delta_px (x) vs delta_pz (y), slice at delta_py=0, delta_v=0
       Right: delta_pz (x) vs delta_vz (y), slice at delta_px=delta_py=0, delta_vx=delta_vy=0
     """
-    dpx = np.linspace(-8, 8, 201)
-    dpz = np.linspace(-8, 8, 201)
-    dvz = np.linspace(-8, 8, 201)
+    # dpx = np.linspace(-8, 8, 201)
+    # dpz = np.linspace(-8, 8, 201)
+    # dvz = np.linspace(-8, 8, 201)
+
+    dpx = np.linspace(-10, 10, 201)
+    dpz = np.linspace(-10, 10, 201)
+    dvz = np.linspace(-10, 10, 201)
 
     # Panel 1: delta_px (x) vs delta_pz (y)
     DPX, DPZ_pos = np.meshgrid(dpx, dpz)
@@ -786,12 +797,15 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
     # times goes from 0 to -10, we want early/mid/late/converged
     n_times = len(times)
     # indices: t=0 (initial=capture set), a few intermediate, t=-10 (converged)
-    indices = [0, n_times//6, n_times//3, n_times//2, n_times-1]
+    indices = [0, n_times//10, n_times//8, n_times//6, n_times//4, n_times//3, n_times//2, n_times-1]
     selected_times = [times[i] for i in indices]
 
-    dpx = np.linspace(-8, 8, 201)
-    dpz = np.linspace(-8, 8, 201)
-    dvz = np.linspace(-8, 8, 201)
+    # dpx = np.linspace(-8, 8, 201)
+    # dpz = np.linspace(-8, 8, 201)
+    # dvz = np.linspace(-8, 8, 201)
+    dpx = np.linspace(-10, 10, 201)
+    dpz = np.linspace(-10, 10, 201)
+    dvz = np.linspace(-10, 10, 201)
 
     DPX, DPZ_pos = np.meshgrid(dpx, dpz)
     slice_pos_pts = np.stack([

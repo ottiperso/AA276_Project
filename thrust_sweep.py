@@ -14,15 +14,20 @@ matplotlib.use('Agg')
 os.makedirs('outputs/plots', exist_ok=True)
 os.makedirs('outputs/data/sweep', exist_ok=True)
 
-GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
+# GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
+GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
 R_CAPTURE = 1.0
 F_E_FIXED  = 2.4
 F_P_ALL    = [2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0, 5.0]
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
+    # hj.sets.Box(
+    #     np.array([-8., -8., -8., -8., -8., -8.]),
+    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+    # ),
     hj.sets.Box(
-        np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([-10., -10., -10., -10., -10., -10.]),  
+        np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
     ),
     GRID_RESOLUTION
 )
@@ -35,14 +40,17 @@ failure_values = (
     ) - R_CAPTURE
 )
 
-times = np.linspace(0, -10, 101, endpoint=True)
+times = np.linspace(0, -20, 201, endpoint=True)
 solver_settings = hj.SolverSettings.with_accuracy(
     'very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
 )
 
-sample_min = np.array([-8., -8., -8., -8., -8., -8.])
-sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+# sample_min = np.array([-8., -8., -8., -8., -8., -8.])
+# sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+sample_min = np.array([-10., -10., -10., -10., -10., -10.])
+sample_max = np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+
 domain_volume = np.prod(sample_max - sample_min)
 num_samples = int(1e6)
 batch_size  = int(1e4)
