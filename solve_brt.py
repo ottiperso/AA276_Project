@@ -27,14 +27,14 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     #     np.array([-5., -5., -5., -5., -5., -5.]),
     #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     # ),
-    # hj.sets.Box(
-    #     np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
-    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
-    # ),
     hj.sets.Box(
-        np.array([-10., -10., -10., -10., -10., -10.]),  
-        np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+        np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
+        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
     ),
+    # hj.sets.Box(
+    #     np.array([-10., -10., -10., -10., -10., -10.]),  
+    #     np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+    # ),
     GRID_RESOLUTION
 )
 

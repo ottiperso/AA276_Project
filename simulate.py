@@ -23,14 +23,14 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     #     np.array([-5., -5., -5., -5., -5., -5.]),
     #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
     # ),
-    # hj.sets.Box(
-    #     np.array([-8., -8., -8., -8., -8., -8.]),
-    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
-    # ),
     hj.sets.Box(
-        np.array([-10., -10., -10., -10., -10., -10.]),  
-        np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+        np.array([-8., -8., -8., -8., -8., -8.]),
+        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
     ),
+    # hj.sets.Box(
+    #     np.array([-10., -10., -10., -10., -10., -10.]),  
+    #     np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+    # ),
     GRID_RESOLUTION
 )
 solver_settings = hj.SolverSettings.with_accuracy(
@@ -70,7 +70,7 @@ beta5s_converged_interpolator = RegularGridInterpolator(
 
 def pursuer_optimal(z):
     # z_clipped = np.clip(z, -4.9, 4.9) # to avoid gradient = 0 when outside grid (infinity)
-    z_clipped = np.clip(z, -9.9, 9.9)
+    z_clipped = np.clip(z, -7.9, 7.9)
     grad = beta5s_converged_interpolator(z_clipped.reshape(1, -1)).item()
     if abs(grad) < 1e-6:
         # fallback: thrust toward evader based on z rel posn
@@ -79,7 +79,7 @@ def pursuer_optimal(z):
 
 # evader bang-bang: maximize V (opposite sign of disturbance gradient)
 def evader_optimal(z):
-    z_clipped = np.clip(z, -9.9, 9.9)
+    z_clipped = np.clip(z, -7.9, 7.9)
     return -np.sign(beta5s_converged_interpolator(z_clipped.reshape(1, -1))) * F_E_MAX
 
 # CONTROLLERS

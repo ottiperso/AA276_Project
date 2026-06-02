@@ -23,14 +23,14 @@ F_E_FIXED  = 2.4
 F_P_ALL    = [2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0, 5.0]
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
-    # hj.sets.Box(
-    #     np.array([-8., -8., -8., -8., -8., -8.]),
-    #     np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
-    # ),
     hj.sets.Box(
-        np.array([-10., -10., -10., -10., -10., -10.]),  
-        np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+        np.array([-8., -8., -8., -8., -8., -8.]),
+        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
     ),
+    # hj.sets.Box(
+    #     np.array([-10., -10., -10., -10., -10., -10.]),  
+    #     np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+    # ),
     GRID_RESOLUTION
 )
 
