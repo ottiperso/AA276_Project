@@ -15,7 +15,9 @@ os.makedirs('outputs/plots', exist_ok=True)
 os.makedirs('outputs/data/sweep', exist_ok=True)
 
 # GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
-GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
+# GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
+GRID_RESOLUTION = (17, 17, 17, 17, 17, 17)
+
 R_CAPTURE = 1.0
 F_E_FIXED  = 2.4
 F_P_ALL    = [2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0, 5.0]
