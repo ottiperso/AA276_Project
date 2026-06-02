@@ -159,8 +159,8 @@ def plot_results():
     ax.grid(True)
 
     fig.tight_layout()
-    fig.savefig('outputs/plots/thrust_sweep.png')
-    print('Saved outputs/plots/thrust_sweep.png')
+    fig.savefig('outputs/plots/thrust_sweep2.png')
+    print('Saved outputs/plots/thrust_sweep2.png')
 
 
 # ── entry point ──
