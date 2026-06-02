@@ -42,7 +42,7 @@ failure_values = (
     ) - R_CAPTURE
 )
 
-times = np.linspace(0, -20, 201, endpoint=True)
+times = np.linspace(0, -10, 101, endpoint=True)
 solver_settings = hj.SolverSettings.with_accuracy(
     'very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
