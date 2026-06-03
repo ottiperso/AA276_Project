@@ -136,12 +136,13 @@ for dvz in np.linspace(-5.0, 5.0, 100):
 # ── define boundary ICs ──
 # TODO: update these after running the scan above to pick better points
 # These are hand-picked near-boundary points based on typical BRT shape
+
 boundary_ics = {
     'boundary_pz_pos':  np.array([0., 0.,  2.0, 0., 0.,  0.0]),  # pz>0, dvz=0
     'boundary_pz_neg':  np.array([0., 0., -2.0, 0., 0.,  0.0]),  # pz<0, dvz=0
-    'boundary_dvz_pos': np.array([0., 0.,  0.0, 0., 0.,  1.5]),  # pz=0, dvz>0
-    'boundary_dvz_neg': np.array([0., 0.,  0.0, 0., 0., -1.5]),  # pz=0, dvz<0
-    'boundary_diag':    np.array([0., 0.,  1.5, 0., 0.,  0.8]),  # diagonal
+    'boundary_pz_other':   np.array([0., 0.,  3.056, 0., 0.,  0.000]),  # V=+0.0025
+    'boundary_dvz_other':  np.array([0., 0.,  2.000, 0., 0.,  0.455]),  # V=+0.0084
+    'boundary_diag': np.array([0., 0.,  1.545, 0., 0.,  0.773]),  # V=+0.0048
 }
 
 dt = 0.01
