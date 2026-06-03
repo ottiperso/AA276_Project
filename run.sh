@@ -20,6 +20,9 @@ python plot_brt_volume_over_time.py
 
 echo "Step 4: BRT Validation..."
 python validate_brt.py --n_samples 2000 --t_horizon 15.0 --dt 0.01
+
+echo "Step 4b: BRT Validation (near-BRT sampling)..."
+python validate_brt.py --n_samples 2000 --t_horizon 15.0 --dt 0.01 --sample_inside_only
  
 echo "Step 5: Thrust ratio sweep (one process per F_P to avoid OOM)..."
 rm -f outputs/data/sweep/result_FP*.npy
