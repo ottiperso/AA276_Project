@@ -306,7 +306,7 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         col_idx  = col % n_cols
 
         # px vs pz
-        ax = axes[row_base, col_idx]
+        ax = axes[col // n_cols, col_idx]
         ax.pcolormesh(dpx, dpz, V_pos, cmap='RdBu', shading='auto')
         ax.contour(dpx, dpz, V_pos, levels=[0], colors='k', linewidths=2)
         ax.contourf(dpx, dpz, V_pos, levels=[V_pos.min(), 0], colors=['red'], alpha=0.3)
@@ -324,7 +324,7 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         ax.set_aspect('equal')
 
         # pz vs vz
-        ax = axes[row_base + 1, col_idx]
+        ax = axes[2 + col // n_cols, col_idx]
         ax.pcolormesh(dpz, dvz, V_vel, cmap='RdBu', shading='auto')
         ax.contour(dpz, dvz, V_vel, levels=[0], colors='k', linewidths=2)
         ax.contourf(dpz, dvz, V_vel, levels=[V_vel.min(), 0], colors=['red'], alpha=0.3)
