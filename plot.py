@@ -262,22 +262,19 @@ def plot_brt_only(values_converged_interpolator):
 def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
     """
     Plot BRT slices at several timesteps to show growth over time.
-    values_all: shape (n_times, 15, 15, 15, 15, 15, 15)
-    times: shape (n_times,) -- negative, from 0 to -10
+    8 timesteps arranged as 4 rows x 4 cols:
+      row 0: px vs pz, first 4 timesteps
+      row 1: pz vs vz, first 4 timesteps
+      row 2: px vs pz, last 4 timesteps
+      row 3: pz vs vz, last 4 timesteps
     """
-    # pick a few representative timesteps to show
-    # times goes from 0 to -10, we want early/mid/late/converged
     n_times = len(times)
-    # indices: t=0 (initial=capture set), a few intermediate, t=-10 (converged)
     indices = [0, n_times//10, n_times//8, n_times//6, n_times//4, n_times//3, n_times//2, n_times-1]
     selected_times = [times[i] for i in indices]
 
     dpx = np.linspace(-8, 8, 201)
     dpz = np.linspace(-8, 8, 201)
     dvz = np.linspace(-8, 8, 201)
-    # dpx = np.linspace(-10, 10, 201)
-    # dpz = np.linspace(-10, 10, 201)
-    # dvz = np.linspace(-10, 10, 201)
 
     DPX, DPZ_pos = np.meshgrid(dpx, dpz)
     slice_pos_pts = np.stack([
@@ -291,10 +288,10 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         np.zeros_like(DPZ_vel.ravel()), np.zeros_like(DPZ_vel.ravel()), DVZ.ravel(),
     ], axis=1)
 
-    fig, axes = plt.subplots(2, len(indices), figsize=(5*len(indices), 10))
+    n_cols = len(indices) // 2  # 4 columns
+    fig, axes = plt.subplots(4, n_cols, figsize=(5*n_cols, 20))
 
     for col, (idx, t) in enumerate(zip(indices, selected_times)):
-        # build interpolator for this timestep
         interp_t = RegularGridInterpolator(
             ([np.array(v) for v in grid.coordinate_vectors]),
             np.array(values_all[idx]),
@@ -304,32 +301,38 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         V_pos = interp_t(slice_pos_pts).reshape(DPX.shape)
         V_vel = interp_t(slice_vel_pts).reshape(DPZ_vel.shape)
 
-        # row 0: px vs pz
-        ax = axes[0, col]
+        # first 4 timesteps go in rows 0-1, last 4 in rows 2-3
+        row_base = (col // n_cols) * 2
+        col_idx  = col % n_cols
+
+        # px vs pz
+        ax = axes[row_base, col_idx]
         ax.pcolormesh(dpx, dpz, V_pos, cmap='RdBu', shading='auto')
         ax.contour(dpx, dpz, V_pos, levels=[0], colors='k', linewidths=2)
         ax.contourf(dpx, dpz, V_pos, levels=[V_pos.min(), 0], colors=['red'], alpha=0.3)
         theta = np.linspace(0, 2*np.pi, 200)
         ax.plot(np.cos(theta), np.sin(theta), 'g--', linewidth=1.5)
-        ax.set_title(f't = {t:.1f}s', fontsize=11)
-        ax.set_xlabel(r'$\Delta p_x$ (m)')
+        title_str = f't = {t:.1f}s'
         if col == 0:
+            title_str += ' (initial)'
+        if col == len(indices) - 1:
+            title_str += ' (converged)'
+        ax.set_title(title_str, fontsize=11)
+        ax.set_xlabel(r'$\Delta p_x$ (m)')
+        if col_idx == 0:
             ax.set_ylabel(r'$\Delta p_z$ (m)')
         ax.set_aspect('equal')
 
-        # row 1: pz vs vz
-        ax = axes[1, col]
+        # pz vs vz
+        ax = axes[row_base + 1, col_idx]
         ax.pcolormesh(dpz, dvz, V_vel, cmap='RdBu', shading='auto')
         ax.contour(dpz, dvz, V_vel, levels=[0], colors='k', linewidths=2)
         ax.contourf(dpz, dvz, V_vel, levels=[V_vel.min(), 0], colors=['red'], alpha=0.3)
         ax.axvline(-1.0, color='g', linestyle='--', linewidth=1.5)
         ax.axvline( 1.0, color='g', linestyle='--', linewidth=1.5)
         ax.set_xlabel(r'$\Delta p_z$ (m)')
-        if col == 0:
+        if col_idx == 0:
             ax.set_ylabel(r'$\Delta v_z$ (m/s)')
-
-    axes[0, 0].set_title(f't = {selected_times[0]:.1f}s (initial)', fontsize=11)
-    axes[0, -1].set_title(f't = {selected_times[-1]:.1f}s (converged)', fontsize=11)
 
     fig.suptitle('BRT Evolution Over Time', fontsize=14, y=1.01)
     fig.tight_layout()
