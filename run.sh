@@ -2,6 +2,7 @@
 mkdir -p outputs/plots
 mkdir -p outputs/data
 mkdir -p outputs/data/sweep
+mkdir -p outputs/plots/animations
 
 echo "Step 1: Solving BRT..."
 python solve_brt.py
@@ -31,5 +32,8 @@ for fp in 2.0 2.2 2.4 2.6 2.8 3.0 3.5 4.0 5.0; do
     python thrust_sweep.py $fp
 done
 python thrust_sweep.py plot
+
+echo "Step 6: Animate BRT..."
+python animate_brt.py --ic all --skip 3 --fps 30
 
 echo "Done! Check outputs/"
