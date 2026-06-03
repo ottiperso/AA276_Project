@@ -50,7 +50,7 @@ failure_values = (
     ) - R_CAPTURE
 )
 
-times = np.linspace(0, -20, 201, endpoint=True)
+times = np.linspace(0, -20, 101, endpoint=True)
 # times = np.linspace(0, -0.001, 2, endpoint=True) # to check for initial BRT
 
 solver_settings = hj.SolverSettings.with_accuracy(
@@ -96,3 +96,15 @@ print(f'BRT Volume (pursuer wins): '
       f'{(num_samples-num_safe)*np.prod(sample_max-sample_min)/num_samples:.3f}')
 print(f'Safe Volume (evader wins): '
       f'{num_safe*np.prod(sample_max-sample_min)/num_samples:.3f}')
+
+# after solving, check convergence by comparing last few timesteps
+values_arr = np.array(values)
+diffs = []
+for i in range(len(times)-1):
+    diff = np.abs(values_arr[i+1] - values_arr[i]).max()
+    diffs.append(diff)
+    
+np.save('outputs/data/convergence.npy', np.array(diffs))
+print('Max value change per timestep:')
+for i, d in enumerate(diffs[-10:]):
+    print(f'  t={times[-(10-i)]:.1f}s: {d:.6f}')

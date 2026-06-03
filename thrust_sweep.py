@@ -48,10 +48,10 @@ solver_settings = hj.SolverSettings.with_accuracy(
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
 )
 
-# sample_min = np.array([-8., -8., -8., -8., -8., -8.])
-# sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
-sample_min = np.array([-10., -10., -10., -10., -10., -10.])
-sample_max = np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+sample_min = np.array([-8., -8., -8., -8., -8., -8.])
+sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+# sample_min = np.array([-10., -10., -10., -10., -10., -10.])
+# sample_max = np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
 
 domain_volume = np.prod(sample_max - sample_min)
 num_samples = int(1e6)

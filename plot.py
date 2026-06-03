@@ -578,7 +578,7 @@ values_converged_interpolator = RegularGridInterpolator(
 
 # color + style per IC
 IC_COLORS = {
-    'inside_near':  'darkgreen',
+    'inside_brt':  'darkgreen',
     'inside_far':   'limegreen',
     'boundary':     'orange',
     'outside_near': 'magenta',
