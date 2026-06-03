@@ -182,7 +182,7 @@ initial_conditions = {
     'inside_brt':   np.array([0., 0., -1.5, 0., 0.,  1.5]),  # approaching, captures fast
     'inside_far':   np.array([0., 0.,  1.5, 0., 0., -0.5]),  # just inside, slow
     'boundary':     np.array([0., 0.,  2.0, 0., 0.,  0.5]),  # near V=0 contour
-    'outside_near': np.array([0., 0.,  3.0, 0., 0.,  2.0]),  # outside, retreating
+    'outside_near': np.array([0., 0.,  3.0, 0., 0.,  1.5]),  # outside, retreating
     'outside_far':  np.array([0., 0.,  4.0, 0., 0.,  0.0]),  # far, zero velocity
 }
 
