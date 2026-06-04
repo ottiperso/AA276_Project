@@ -34,10 +34,19 @@ pts_px = np.stack([DPX_p.ravel(), np.zeros_like(DPX_p.ravel()),
     np.zeros_like(DPX_p.ravel())], axis=1)
 V_pxpz = interp(pts_px).reshape(DPX_p.shape)
 
+# ICS = {
+#     'inside_brt':    ('darkgreen', '$V=-1.05$, Captured @ 0.33s'),
+#     'boundary_diag': ('orange',    '$V=+0.005$, Escaped'),
+#     'outside_near':  ('red',       '$V=+2.13$, Escaped'),
+# }
+
 ICS = {
-    'inside_brt':    ('darkgreen', '$V=-1.05$, Captured @ 0.33s'),
-    'boundary_diag': ('orange',    '$V=+0.005$, Escaped'),
-    'outside_near':  ('red',       '$V=+2.13$, Escaped'),
+    'inside_brt':    ('darkgreen',  '$V=-1.05$, Captured @ 0.33s'),
+    'inside_far':    ('limegreen',  '$V=-0.75$, Captured'),
+    'boundary_diag': ('orange',     '$V=+0.005$, Escaped'),
+    'boundary_pz':   ('goldenrod',  '$V=+0.003$, Captured*'),
+    'boundary_dvz':  ('darkorange', '$V=+0.009$, Escaped'),
+    'outside_near':  ('red',        '$V=+2.13$, Escaped'),
 }
 
 for ic_name, (color, subtitle) in ICS.items():
