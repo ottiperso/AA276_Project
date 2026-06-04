@@ -44,8 +44,8 @@ ICS = {
     'inside_brt':    ('darkgreen',  '$V=-1.05$, Captured @ 0.33s'),
     'inside_far':    ('limegreen',  '$V=-0.75$, Captured'),
     'boundary_diag': ('orange',     '$V=+0.005$, Escaped'),
-    'boundary_pz':   ('goldenrod',  '$V=+0.003$, Captured*'),
-    'boundary_dvz':  ('darkorange', '$V=+0.009$, Escaped'),
+    'boundary_pz_other':   ('goldenrod',  '$V=+0.003$, Captured*'),
+    'boundary_dvz_other':  ('darkorange', '$V=+0.009$, Escaped'),
     'outside_near':  ('red',        '$V=+2.13$, Escaped'),
 }
 
