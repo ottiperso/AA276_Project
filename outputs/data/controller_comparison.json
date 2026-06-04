@@ -35,8 +35,8 @@
       "capture_t": 0.92
     },
     "naive": {
-      "captured": true,
-      "capture_t": 0.92
+      "captured": false,
+      "capture_t": null
     }
   },
   "boundary": {
