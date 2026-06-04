@@ -1,0 +1,102 @@
+{
+  "inside_brt": {
+    "z0": [
+      0.0,
+      0.0,
+      -1.5,
+      0.0,
+      0.0,
+      1.5
+    ],
+    "V0": -1.0458,
+    "brt_class": "inside",
+    "optimal": {
+      "captured": true,
+      "capture_t": 0.33
+    },
+    "naive": {
+      "captured": true,
+      "capture_t": 0.33
+    }
+  },
+  "inside_far": {
+    "z0": [
+      0.0,
+      0.0,
+      1.5,
+      0.0,
+      0.0,
+      -0.5
+    ],
+    "V0": -0.7483,
+    "brt_class": "inside",
+    "optimal": {
+      "captured": true,
+      "capture_t": 0.92
+    },
+    "naive": {
+      "captured": true,
+      "capture_t": 0.92
+    }
+  },
+  "boundary": {
+    "z0": [
+      0.0,
+      0.0,
+      2.0,
+      0.0,
+      0.0,
+      0.5
+    ],
+    "V0": 0.0476,
+    "brt_class": "boundary",
+    "optimal": {
+      "captured": false,
+      "capture_t": null
+    },
+    "naive": {
+      "captured": false,
+      "capture_t": null
+    }
+  },
+  "outside_near": {
+    "z0": [
+      0.0,
+      0.0,
+      3.5,
+      0.0,
+      0.0,
+      1.75
+    ],
+    "V0": 2.1291,
+    "brt_class": "outside",
+    "optimal": {
+      "captured": false,
+      "capture_t": null
+    },
+    "naive": {
+      "captured": false,
+      "capture_t": null
+    }
+  },
+  "outside_far": {
+    "z0": [
+      0.0,
+      0.0,
+      4.0,
+      0.0,
+      0.0,
+      2.0
+    ],
+    "V0": 2.7635,
+    "brt_class": "outside",
+    "optimal": {
+      "captured": false,
+      "capture_t": null
+    },
+    "naive": {
+      "captured": false,
+      "capture_t": null
+    }
+  }
+}
