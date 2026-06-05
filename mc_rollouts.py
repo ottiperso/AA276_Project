@@ -1,16 +1,5 @@
-"""
-MC Rollouts + Controller Comparison Script
-------------------------------------------
-1. MC rollouts: two panels, each with 3 base points overlaid.
-   Panel 1: inside / boundary / just-outside
-   Panel 2: three boundary points from different directions
-
-2. Controller comparison: optimal HJI bang-bang vs naive (always +z thrust)
-   saves results to JSON for paper table.
-
-Usage:
-  python mc_rollouts.py
-"""
+# mc_rollouts.py
+# MC rollouts + controller comparison
 
 import numpy as np
 import jax.numpy as jnp
@@ -28,7 +17,6 @@ from dynamics import PursuitEvasion, F_P_MAX, F_E_MAX
 os.makedirs('outputs/plots', exist_ok=True)
 os.makedirs('outputs/data', exist_ok=True)
 
-# ── load BRT ──
 values = np.load('outputs/data/values.npy')
 values_converged = values[-1]
 
@@ -40,8 +28,7 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     ),
     GRID_RESOLUTION
 )
-solver_settings = hj.SolverSettings.with_accuracy(
-    'very_high',
+solver_settings = hj.SolverSettings.with_accuracy('very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
 )
 
@@ -53,7 +40,6 @@ values_converged_interpolator = RegularGridInterpolator(
     np.array(values_converged),
     bounds_error=False, fill_value=None
 )
-
 grads_converged = grid.grad_values(
     jnp.array(values_converged),
     solver_settings.upwind_scheme
@@ -65,7 +51,6 @@ beta5s_converged_interpolator = RegularGridInterpolator(
     bounds_error=False, fill_value=None
 )
 
-# ── controllers ──
 def optimal_pursuer(z):
     z_clipped = np.clip(z, GRID_LO + 0.1, GRID_HI - 0.1)
     grad = beta5s_converged_interpolator(z_clipped.reshape(1, -1)).item()
@@ -74,7 +59,7 @@ def optimal_pursuer(z):
     return -np.sign(grad) * F_P_MAX
 
 def naive_pursuer(z):
-    # always thrust +z regardless of state — no gradient feedback
+    # always thrusts +z, no gradient feedback
     return F_P_MAX
     # return -np.sign(z[2]) * F_P_MAX if abs(z[2]) > 0.01 else F_P_MAX
 
@@ -111,7 +96,7 @@ nt = int(8.0 / dt)
 np.random.seed(0)
 n_rollouts = 40
 
-# ── precompute BRT background ──
+# BRT background
 dpz = np.linspace(-8, 8, 100)
 dvz = np.linspace(-8, 8, 100)
 DPZ, DVZ = np.meshgrid(dpz, dvz)
@@ -121,7 +106,7 @@ pts = np.stack([
 ], axis=1)
 V_bg = values_converged_interpolator(pts).reshape(DPZ.shape)
 
-# ── 1. MC ROLLOUTS ──
+# MC rollouts
 print('Running MC rollouts...')
 
 # group 1: inside / boundary / outside
@@ -131,7 +116,7 @@ group1 = {
     'outside':  (np.array([0., 0.,  3.5,  0., 0.,  1.75]), 'red',    0.30),
 }
 
-# group 2: three boundary points from different directions
+# group 2: 3 boundary points from diff dirs
 group2 = {
     'boundary\_pz':   (np.array([0., 0.,  3.056, 0., 0.,  0.0]),   'purple', 0.15),
     'boundary\_dvz':  (np.array([0., 0.,  2.0,   0., 0.,  0.455]), 'blue',   0.15),
@@ -139,11 +124,9 @@ group2 = {
 }
 
 def plot_mc_panel(ax, group, title):
-    ax.pcolormesh(dpz, dvz, V_bg, cmap='RdBu', shading='auto',
-                  vmin=-3, vmax=3, alpha=0.7)
+    ax.pcolormesh(dpz, dvz, V_bg, cmap='RdBu', shading='auto', vmin=-3, vmax=3, alpha=0.7)
     ax.contour(dpz, dvz, V_bg, levels=[0], colors='k', linewidths=2)
-    ax.contourf(dpz, dvz, V_bg, levels=[V_bg.min(), 0],
-                colors=['red'], alpha=0.15)
+    ax.contourf(dpz, dvz, V_bg, levels=[V_bg.min(), 0], colors=['red'], alpha=0.15)
     ax.axvline(-1.0, color='g', linestyle='--', linewidth=1.5)
     ax.axvline( 1.0, color='g', linestyle='--', linewidth=1.5)
 
@@ -158,13 +141,12 @@ def plot_mc_panel(ax, group, title):
             if captured:
                 n_cap += 1
             ax.plot(zs[:, 2], zs[:, 5],
-                    color=color, alpha=0.45,
-                    linewidth=0.9,
+                    color=color, alpha=0.45, linewidth=0.9,
                     linestyle='-' if captured else '--')
             ax.plot(zs[0, 2], zs[0, 5], 'o', color=color, markersize=3, alpha=0.6)
 
         V0 = values_converged_interpolator(z0_base.reshape(1,-1)).item()
-        # star for base point
+        # star at base point
         ax.plot(z0_base[2], z0_base[5], '*', color=color, markersize=14,
                 markeredgecolor='k', markeredgewidth=0.8, zorder=5,
                 label=f'{label} ($V={V0:+.2f}$, {n_cap}/{n_rollouts} cap)')
@@ -178,11 +160,9 @@ def plot_mc_panel(ax, group, title):
     ax.grid(True, alpha=0.3)
 
 fig, axes = plt.subplots(1, 2, figsize=(16, 7))
-plot_mc_panel(axes[0], group1,
-              'MC Rollouts: Inside / Boundary / Outside\n'
+plot_mc_panel(axes[0], group1, 'MC Rollouts: Inside / Boundary / Outside\n'
               f'(solid=captured, dashed=escaped, {n_rollouts} rollouts each)')
-plot_mc_panel(axes[1], group2,
-              'MC Rollouts: Three Boundary Points\n'
+plot_mc_panel(axes[1], group2, 'MC Rollouts: Three Boundary Points\n'
               f'(solid=captured, dashed=escaped, {n_rollouts} rollouts each)')
 
 fig.suptitle('Monte Carlo Rollouts Under Optimal Controllers', fontsize=14)
@@ -191,7 +171,7 @@ fig.savefig('outputs/plots/mc_rollouts.png', bbox_inches='tight', dpi=150)
 print('Saved outputs/plots/mc_rollouts.png')
 
 
-# ── 2. CONTROLLER COMPARISON ──
+# controller comparison
 print('\nRunning controller comparison...')
 
 all_ics = {
@@ -227,7 +207,7 @@ with open('outputs/data/controller_comparison.json', 'w') as f:
 print('Saved outputs/data/controller_comparison.json')
 
 
-# ── 3. CONTROLLER COMPARISON PLOT ──
+# controller comparison plot
 fig2, axes2 = plt.subplots(2, len(all_ics), figsize=(5*len(all_ics), 10))
 
 for col, (ic_name, z0) in enumerate(all_ics.items()):
@@ -236,16 +216,14 @@ for col, (ic_name, z0) in enumerate(all_ics.items()):
         (naive_pursuer,   'Naive (+z)',  'darkorange'),
     ]):
         ax = axes2[row, col]
-        ax.pcolormesh(dpz, dvz, V_bg, cmap='RdBu', shading='auto',
-                      vmin=-3, vmax=3, alpha=0.6)
+        ax.pcolormesh(dpz, dvz, V_bg, cmap='RdBu', shading='auto', vmin=-3, vmax=3, alpha=0.6)
         ax.contour(dpz, dvz, V_bg, levels=[0], colors='k', linewidths=1.5)
         ax.axvline(-1.0, color='g', linestyle='--', linewidth=1.2)
         ax.axvline( 1.0, color='g', linestyle='--', linewidth=1.2)
 
         zs, captured, cap_t = simulate_simple(z0, pursuer_fn, optimal_evader, nt, dt)
         ax.plot(zs[:, 2], zs[:, 5], color=color, linewidth=2)
-        ax.plot(zs[0, 2], zs[0, 5], 'o', color=color, markersize=8,
-                markeredgecolor='k')
+        ax.plot(zs[0, 2], zs[0, 5], 'o', color=color, markersize=8, markeredgecolor='k')
 
         outcome = f'Captured @ {cap_t:.2f}s' if captured else 'Escaped'
         ax.set_title(f'{ic_name}\n{label}: {outcome}', fontsize=9)
@@ -264,6 +242,6 @@ fig2.savefig('outputs/plots/controller_comparison.png', bbox_inches='tight', dpi
 print('Saved outputs/plots/controller_comparison.png')
 
 print('\nDone!')
-print('  outputs/plots/mc_rollouts.png')
-print('  outputs/plots/controller_comparison.png')
-print('  outputs/data/controller_comparison.json')
+print('outputs/plots/mc_rollouts.png')
+print('outputs/plots/controller_comparison.png')
+print('outputs/data/controller_comparison.json')

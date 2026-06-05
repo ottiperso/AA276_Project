@@ -1,4 +1,6 @@
 # plot_representative.py
+# individual IC trajectory plots in both BRT slices
+
 import numpy as np
 import hj_reachability as hj
 from scipy.interpolate import RegularGridInterpolator
@@ -17,7 +19,7 @@ interp = RegularGridInterpolator(
     [np.array(v) for v in grid.coordinate_vectors],
     np.array(values_converged), bounds_error=False, fill_value=None)
 
-# precompute BRT slices
+# BRT slices
 dpz = np.linspace(-8, 8, 100)
 dvz = np.linspace(-8, 8, 100)
 dpx = np.linspace(-8, 8, 100)
@@ -35,18 +37,18 @@ pts_px = np.stack([DPX_p.ravel(), np.zeros_like(DPX_p.ravel()),
 V_pxpz = interp(pts_px).reshape(DPX_p.shape)
 
 # ICS = {
-#     'inside_brt':    ('darkgreen', '$V=-1.05$, Captured @ 0.33s'),
-#     'boundary_diag': ('orange',    '$V=+0.005$, Escaped'),
-#     'outside_near':  ('red',       '$V=+2.13$, Escaped'),
+#     'inside_brt': ('darkgreen', '$V=-1.05$, Captured @ 0.33s'),
+#     'boundary_diag': ('orange', '$V=+0.005$, Escaped'),
+#     'outside_near': ('red', '$V=+2.13$, Escaped'),
 # }
 
 ICS = {
-    'inside_brt':    ('darkgreen',  '$V=-1.05$, Captured @ 0.33s'),
-    'inside_far':    ('limegreen',  '$V=-0.75$, Captured'),
-    'boundary_diag': ('orange',     '$V=+0.005$, Escaped'),
-    'boundary_pz_other':   ('goldenrod',  '$V=+0.003$, Captured*'),
-    'boundary_dvz_other':  ('darkorange', '$V=+0.009$, Escaped'),
-    'outside_near':  ('red',        '$V=+2.13$, Escaped'),
+    'inside_brt': ('darkgreen', '$V=-1.05$, Captured @ 0.33s'),
+    'inside_far': ('limegreen', '$V=-0.75$, Captured'),
+    'boundary_diag': ('orange', '$V=+0.005$, Escaped'),
+    'boundary_pz_other': ('goldenrod', '$V=+0.003$, Captured*'),
+    'boundary_dvz_other': ('darkorange', '$V=+0.009$, Escaped'),
+    'outside_near': ('red', '$V=+2.13$, Escaped'),
 }
 
 for ic_name, (color, subtitle) in ICS.items():

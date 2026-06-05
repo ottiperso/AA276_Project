@@ -1,3 +1,8 @@
+# plot.py
+# generates all main figures (BRT slices, trajectories, controls)
+# estimates and plots BRT volume vs time horizon
+# plots BRT value func convergence over time
+
 import numpy as np
 import jax.numpy as jnp
 import hj_reachability as hj
@@ -6,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 matplotlib.use('Agg')
+from tqdm import tqdm
 
 from dynamics import PursuitEvasion, F_P_MAX, F_E_MAX
 
@@ -26,17 +32,12 @@ for name in IC_NAMES:
 
 GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
-# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
         np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
     ),
-    # hj.sets.Box(
-    #     np.array([-10., -10., -10., -10., -10., -10.]),  
-    #     np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
-    # ),
     GRID_RESOLUTION
 )
 
@@ -49,18 +50,16 @@ values_converged_interpolator = RegularGridInterpolator(
 
 # color + style per IC
 IC_COLORS = {
-    'inside_brt':  'darkgreen',
-    'inside_far':   'limegreen',
-    'boundary':     'orange',
+    'inside_brt': 'darkgreen',
+    'inside_far': 'limegreen',
+    'boundary': 'orange',
     'outside_near': 'magenta',
-    'outside_far':  'red',
+    'outside_far': 'red',
 }
 
 # 2D slice: delta_pz (x-axis) vs delta_vz (y-axis)
 dpz = np.linspace(-8, 8, 101)
 dvz = np.linspace(-8, 8, 101)
-# dpz = np.linspace(-10, 10, 101)
-# dvz = np.linspace(-10, 10, 101)
 
 DPZ, DVZ = np.meshgrid(dpz, dvz)
 slice_pts = np.stack([
@@ -75,7 +74,7 @@ V_slice = values_converged_interpolator(slice_pts).reshape(DVZ.shape)
 
 dt = 0.01
 
-# ── Figure 1: BRT slice + relative distance + 5 control profile subplots ──
+# figure 1: BRT slice + relative distance + 5 control profile subplots
 fig = plt.figure(figsize=(24, 8))
 gs = GridSpec(1, 3, figure=fig, wspace=0.35)
 
@@ -133,20 +132,20 @@ for i, name in enumerate(IC_NAMES):
 fig.savefig('outputs/plots/pursuit_evasion.png', bbox_inches='tight')
 print('Saved plot to outputs/plots/pursuit_evasion.png')
 
-# ── Figure 2: per-IC detail plots ──
+# figure 2: drone posns + relative state + control inputs (per each IC)
 for name in IC_NAMES:
-    zs  = results[name]['zs']
+    zs = results[name]['zs']
     p_P = results[name]['p_P']
     p_E = results[name]['p_E']
     FPs = results[name]['FPs']
     FEs = results[name]['FEs']
 
-    t      = np.arange(len(zs)) * dt
+    t = np.arange(len(zs)) * dt
     t_ctrl = np.arange(len(FPs)) * dt
 
     fig2, axes2 = plt.subplots(1, 3, figsize=(18, 5))
 
-    # plot 1: individual drone positions
+    # plot 1: individual drone posns
     ax = axes2[0]
     ax.plot(t, p_P[:, 2], 'g', linewidth=2, label='Pursuer $p_z$')
     ax.plot(t, p_E[:, 2], 'm', linewidth=2, label='Evader $p_z$')
@@ -185,22 +184,17 @@ for name in IC_NAMES:
     print(f'Saved plot to outputs/plots/trajectories_{name}.png')
 
 
-# ── Figure 3: two-panel BRT only ──
+# figure 3: BRT (two panels: px vs pz and pz vs vz)
 def plot_brt_only(values_converged_interpolator):
     """
-    Two-panel BRT plot:
-      Left:  delta_px (x) vs delta_pz (y), slice at delta_py=0, delta_v=0
-      Right: delta_pz (x) vs delta_vz (y), slice at delta_px=delta_py=0, delta_vx=delta_vy=0
+    Left panel:  delta_px (x) vs delta_pz (y), slice at delta_py=0, delta_v=0
+    Righ panelt: delta_pz (x) vs delta_vz (y), slice at delta_px=delta_py=0, delta_vx=delta_vy=0
     """
     dpx = np.linspace(-8, 8, 201)
     dpz = np.linspace(-8, 8, 201)
     dvz = np.linspace(-8, 8, 201)
 
-    # dpx = np.linspace(-10, 10, 201)
-    # dpz = np.linspace(-10, 10, 201)
-    # dvz = np.linspace(-10, 10, 201)
-
-    # Panel 1: delta_px (x) vs delta_pz (y)
+    # left panel: delta_px (x) vs delta_pz (y)
     DPX, DPZ_pos = np.meshgrid(dpx, dpz)
     slice_pos = np.stack([
         DPX.ravel(),
@@ -212,7 +206,7 @@ def plot_brt_only(values_converged_interpolator):
     ], axis=1)
     V_pos = values_converged_interpolator(slice_pos).reshape(DPX.shape)
 
-    # Panel 2: delta_pz (x) vs delta_vz (y)
+    # right panel: delta_pz (x) vs delta_vz (y)
     DPZ_vel, DVZ = np.meshgrid(dpz, dvz)
     slice_vel = np.stack([
         np.zeros_like(DPZ_vel.ravel()),
@@ -226,7 +220,6 @@ def plot_brt_only(values_converged_interpolator):
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 7))
 
-    # Panel 1
     ax = axes[0]
     pcm1 = ax.pcolormesh(dpx, dpz, V_pos, cmap='RdBu', shading='auto')
     ax.contour(dpx, dpz, V_pos, levels=[0], colors='k', linewidths=2)
@@ -240,7 +233,6 @@ def plot_brt_only(values_converged_interpolator):
     plt.colorbar(pcm1, ax=ax, label='Value Function V')
     ax.legend()
 
-    # Panel 2
     ax = axes[1]
     pcm2 = ax.pcolormesh(dpz, dvz, V_vel, cmap='RdBu', shading='auto')
     ax.contour(dpz, dvz, V_vel, levels=[0], colors='k', linewidths=2)
@@ -256,17 +248,13 @@ def plot_brt_only(values_converged_interpolator):
 
     fig.tight_layout()
     fig.savefig('outputs/plots/brt_only.png')
-    print('Saved BRT-only plot to outputs/plots/brt_only.png')
+    print('Saved BRT_only plot to outputs/plots/brt_only.png')
 
-
+# plot many BRT slices over time to show BRT growth over time
+# 8 timesteps, for both axes configs
 def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
     """
-    Plot BRT slices at several timesteps to show growth over time.
-    8 timesteps arranged as 4 rows x 4 cols:
-      row 0: px vs pz, first 4 timesteps
-      row 1: pz vs vz, first 4 timesteps
-      row 2: px vs pz, last 4 timesteps
-      row 3: pz vs vz, last 4 timesteps
+    BRT slices at several timesteps.
     """
     n_times = len(times)
     indices = [0, n_times//10, n_times//8, n_times//6, n_times//4, n_times//3, n_times//2, n_times-1]
@@ -301,7 +289,6 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         V_pos = interp_t(slice_pos_pts).reshape(DPX.shape)
         V_vel = interp_t(slice_vel_pts).reshape(DPZ_vel.shape)
 
-        # first 4 timesteps go in rows 0-1, last 4 in rows 2-3
         row_base = (col // n_cols) * 2
         col_idx  = col % n_cols
 
@@ -344,3 +331,64 @@ plot_brt_only(values_converged_interpolator)
 values_all = np.load('outputs/data/values.npy')
 times_all  = np.load('outputs/data/times.npy')
 plot_brt_over_time(values_all, times_all, values_converged_interpolator)
+
+# also: plot BRT value function convergence over time
+# plots max change in value func per timestep on log scale, showing when HJI PDE solution has converged
+
+diffs = np.load('outputs/data/convergence.npy')
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.semilogy(np.abs(times_all[1:]), diffs, 'b-o', markersize=4, linewidth=1.5)
+ax.set_xlabel('Time horizon $|t|$ (s)', fontsize=13)
+ax.set_ylabel('Max value change (log scale)', fontsize=13)
+ax.set_title('BRT Convergence: Max $|V_{t+1} - V_t|$ per timestep', fontsize=13)
+ax.grid(True, which='both')
+fig.tight_layout()
+fig.savefig('outputs/plots/convergence.png')
+print('Saved outputs/plots/convergence.png')
+
+# also: estimate and plot BRT volume vs time horizon
+# estimates BRT volume at each timestep using Monte Carlo sampling
+
+sample_min    = np.array([-8., -8., -8., -8., -8., -8.])
+sample_max    = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+domain_volume = np.prod(sample_max - sample_min)
+num_samples   = int(1e5)
+batch_size    = int(1e3)
+num_batches   = int(num_samples / batch_size)
+
+# subsample timesteps so this doesn't take forever
+step = max(1, len(times_all) // 20)  # ~20 points
+t_indices = list(range(0, len(times_all), step))
+if t_indices[-1] != len(times_all) - 1:
+    t_indices.append(len(times_all) - 1)
+
+volumes = []
+for idx in tqdm(t_indices, desc='Computing BRT volumes'):
+    interp = RegularGridInterpolator(
+        ([np.array(v) for v in grid.coordinate_vectors]),
+        np.array(values_all[idx]),
+        bounds_error=False, fill_value=None
+    )
+    num_inside = 0
+    for _ in range(num_batches):
+        samples = np.random.uniform(low=sample_min, high=sample_max,
+                                    size=(batch_size, 6))
+        num_inside += np.sum(interp(samples) < 0)
+    volumes.append(num_inside * domain_volume / num_samples)
+
+t_plot = [times_all[i] for i in t_indices]
+
+np.save('outputs/data/brt_volume_over_time.npy',
+        np.array(list(zip(t_plot, volumes))))
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(np.abs(t_plot), volumes, 'b-o', markersize=5, linewidth=2)
+ax.set_xlabel('Time horizon $|t|$ (s)', fontsize=13)
+ax.set_ylabel('BRT Volume (m$^6$)', fontsize=13)
+ax.set_title('BRT Volume vs Time Horizon', fontsize=13)
+ax.set_ylim(0, None)
+ax.grid(True)
+fig.tight_layout()
+fig.savefig('outputs/plots/brt_volume_over_time.png')
+print('Saved outputs/plots/brt_volume_over_time.png')

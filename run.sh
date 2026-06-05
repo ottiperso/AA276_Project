@@ -13,12 +13,6 @@ python simulate.py
 echo "Step 3: Plotting..."
 python plot.py
 
-echo "Step 3b: Convergence plot..."
-python plot_convergence.py
-
-echo "Step 3c: BRT volume over time..."
-python plot_brt_volume_over_time.py
-
 echo "Step 4: BRT Validation..."
 python validate_brt.py --n_samples 2000 --t_horizon 15.0 --dt 0.01
 
@@ -35,5 +29,14 @@ python thrust_sweep.py plot
 
 echo "Step 6: Animate BRT..."
 python animate_brt.py --ic all --skip 3 --fps 30
+
+echo "Step 7: Simulate boundary ICs..."
+python boundary_sim.py
+
+echo "Step 8: Animate boundary ICs..."
+for ic in boundary_pz_pos boundary_pz_neg boundary_pz_other boundary_dvz_other boundary_diag; do
+    echo "  Animating $ic..."
+    python animate_brt.py --ic $ic --skip 3 --fps 30
+done
 
 echo "Done! Check outputs/"

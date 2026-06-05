@@ -1,13 +1,5 @@
-"""
-Boundary Simulation Script
---------------------------
-Finds BRT boundary points and simulates trajectories from them.
-Saves results with names like 'boundary_1', 'boundary_2', etc.
-so animate_brt.py can be run on them directly.
-
-Usage:
-  python boundary_sim.py
-"""
+# boundary_sim.py
+# Finds and simulates trajectories from near boundary ICs
 
 import numpy as np
 import jax.numpy as jnp
@@ -20,7 +12,6 @@ from dynamics import PursuitEvasion, F_P_MAX, F_E_MAX
 
 os.makedirs('outputs/data', exist_ok=True)
 
-# ── load BRT (same as simulate.py) ──
 values = np.load('outputs/data/values.npy')
 values_converged = values[-1]
 
@@ -32,8 +23,7 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     ),
     GRID_RESOLUTION
 )
-solver_settings = hj.SolverSettings.with_accuracy(
-    'very_high',
+solver_settings = hj.SolverSettings.with_accuracy('very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
 )
 
@@ -45,7 +35,6 @@ values_converged_interpolator = RegularGridInterpolator(
     np.array(values_converged),
     bounds_error=False, fill_value=None
 )
-
 grads_converged = grid.grad_values(
     jnp.array(values_converged),
     solver_settings.upwind_scheme
@@ -116,27 +105,24 @@ def simulate(z0, nt, dt=0.01):
         print('No capture.')
     return zs, p_P, p_E, F_Ps, F_Es
 
-# ── find boundary points ──
+# find boundary or near boundary pts 
 # scan pz axis at dvz=0
-print('\nScanning pz axis at dvz=0 for boundary...')
+# print('\nScanning pz axis at dvz=0 for boundary...')
 for dpz in np.linspace(0.5, 5.0, 50):
     z_test = np.array([0., 0., dpz, 0., 0., 0.])
     V = values_converged_interpolator(z_test.reshape(1,-1)).item()
     if abs(V) < 0.15:
-        print(f'  Near boundary: dpz={dpz:.3f}  V={V:.4f}')
+        print(f'Near boundary: dpz={dpz:.3f}  V={V:.4f}')
 
 # scan dvz axis at dpz=0
-print('\nScanning dvz axis at dpz=0 for boundary...')
+# print('\nScanning dvz axis at dpz=0 for boundary...')
 for dvz in np.linspace(-5.0, 5.0, 100):
     z_test = np.array([0., 0., 0., 0., 0., dvz])
     V = values_converged_interpolator(z_test.reshape(1,-1)).item()
     if abs(V) < 0.15:
-        print(f'  Near boundary: dvz={dvz:.3f}  V={V:.4f}')
+        print(f'Near boundary: dvz={dvz:.3f}  V={V:.4f}')
 
-# ── define boundary ICs ──
-# TODO: update these after running the scan above to pick better points
-# These are hand-picked near-boundary points based on typical BRT shape
-
+# after scanning, chosen:
 boundary_ics = {
     'boundary_pz_pos':  np.array([0., 0.,  2.0, 0., 0.,  0.0]),  # pz>0, dvz=0
     'boundary_pz_neg':  np.array([0., 0., -2.0, 0., 0.,  0.0]),  # pz<0, dvz=0
@@ -151,11 +137,11 @@ nt = int(8.0 / dt)
 print('\nV values at boundary ICs:')
 for name, z0 in boundary_ics.items():
     V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
-    print(f'  {name:25s}: V={V0:+.4f}  z0={z0}')
+    print(f'{name:25s}: V={V0:+.4f}  z0={z0}')
 
 print('\nSimulating boundary ICs...')
 for name, z0 in boundary_ics.items():
-    print(f'\n=== {name} ===')
+    print(f'\n{name}')
     zs, p_P, p_E, FPs, FEs = simulate(z0, nt, dt)
     np.save(f'outputs/data/zs_{name}.npy',   zs)
     np.save(f'outputs/data/p_P_{name}.npy',  p_P)
@@ -165,6 +151,6 @@ for name, z0 in boundary_ics.items():
     V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
     print(f'V(z0) = {V0:.4f}')
 
-print('\nDone! Run animations with:')
-for name in boundary_ics:
-    print(f'  python animate_brt.py --ic {name} --skip 3 --fps 30')
+# print('\nDone! Run animations with:')
+# for name in boundary_ics:
+#     print(f'python animate_brt.py --ic {name} --skip 3 --fps 30')

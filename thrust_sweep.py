@@ -1,3 +1,6 @@
+# thrust_sweep.py
+# sweeps pursuer to evader thrust ratio and measures BRT volume
+
 import numpy as np
 import jax
 import jax.numpy as jnp
@@ -16,7 +19,6 @@ os.makedirs('outputs/data/sweep', exist_ok=True)
 
 GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
-# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
 
 R_CAPTURE = 1.0
 F_E_FIXED  = 2.4
@@ -27,10 +29,6 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
         np.array([-8., -8., -8., -8., -8., -8.]),
         np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
     ),
-    # hj.sets.Box(
-    #     np.array([-10., -10., -10., -10., -10., -10.]),  
-    #     np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
-    # ),
     GRID_RESOLUTION
 )
 
@@ -43,22 +41,19 @@ failure_values = (
 )
 
 times = np.linspace(0, -10, 101, endpoint=True)
-solver_settings = hj.SolverSettings.with_accuracy(
-    'very_high',
+solver_settings = hj.SolverSettings.with_accuracy('very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
 )
 
 sample_min = np.array([-8., -8., -8., -8., -8., -8.])
 sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
-# sample_min = np.array([-10., -10., -10., -10., -10., -10.])
-# sample_max = np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
 
 domain_volume = np.prod(sample_max - sample_min)
 num_samples = int(1e6)
 batch_size  = int(1e4)
 num_batches = int(num_samples / batch_size)
 
-
+# same as before
 class SweepDynamics(dynamics.ControlAndDisturbanceAffineDynamics):
     def __init__(self, f_p, f_e):
         control_space     = sets.Box(jnp.array([-f_p]), jnp.array([f_p]))
@@ -78,8 +73,8 @@ class SweepDynamics(dynamics.ControlAndDisturbanceAffineDynamics):
         return jnp.array([[0.],[0.],[0.],[0.],[0.],[-1.]])
 
 
-def solve_one(F_P):
-    """Solve BRT and compute volume for a single F_P value."""
+# solve BRT and find vol for one F_P value
+def solve_one(F_P): 
     ratio = F_P / F_E_FIXED
     print(f'\n=== F_P={F_P:.1f}, F_E={F_E_FIXED:.1f}, ratio={ratio:.3f} ===')
 
@@ -98,19 +93,18 @@ def solve_one(F_P):
 
     num_inside = 0
     for _ in range(num_batches):
-        samples = np.random.uniform(low=sample_min, high=sample_max,
-                                    size=(batch_size, 6))
+        samples = np.random.uniform(low=sample_min, high=sample_max, size=(batch_size, 6))
         num_inside += np.sum(interp(samples) < 0)
 
     brt_volume = num_inside * domain_volume / num_samples
-    print(f'BRT volume: {brt_volume:.2f} m^6  ({100*num_inside/num_samples:.2f}% of domain)')
+    print(f'BRT volume: {brt_volume:.2f} m^6 ({100*num_inside/num_samples:.2f}% of domain)')
 
-    # save this result immediately in case of crash
+    # save result in case of crash
     result = np.array([[ratio, F_P, F_E_FIXED, brt_volume]])
     result_path = f'outputs/data/sweep/result_FP{F_P:.1f}.npy'
     np.save(result_path, result)
 
-    # free GPU memory
+    # free GPU memory in between
     del values
     del values_converged
     jax.clear_caches()
@@ -120,7 +114,6 @@ def solve_one(F_P):
 
 
 def plot_results():
-    """Load all saved per-F_P results and plot."""
     rows = []
     for F_P in F_P_ALL:
         path = f'outputs/data/sweep/result_FP{F_P:.1f}.npy'
@@ -138,7 +131,7 @@ def plot_results():
 
     np.save('outputs/data/sweep/sweep_results.npy', results)
 
-    print('\n=== Sweep Results ===')
+    print('\nSweep Results')
     print(f'{"Ratio":>8}  {"F_P":>6}  {"F_E":>6}  {"BRT Vol":>12}')
     print('-' * 42)
     for row in results:
@@ -146,8 +139,8 @@ def plot_results():
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-    print("DEBUG x values:", results[:, 0].tolist())
-    print("DEBUG y values:", results[:, 3].tolist())
+    # print("DEBUG x values:", results[:, 0].tolist())
+    # print("DEBUG y values:", results[:, 3].tolist())
 
     ax = axes[0]
     ax.plot(results[:, 0], results[:, 3], 'bo-', linewidth=2, markersize=8)
@@ -173,10 +166,10 @@ def plot_results():
     print('Saved outputs/plots/thrust_sweep2.png')
 
 
-# ── entry point ──
+# to run
 # if called with a float arg, solve that one F_P value
 # if called with 'plot', just plot existing results
-# if called with no args, run all sequentially (may OOM)
+# if called with no args, run all
 if len(sys.argv) > 1:
     arg = sys.argv[1]
     if arg == 'plot':

@@ -1,3 +1,6 @@
+# solve_brt.py
+# solves the HJI PDE to find the BRT
+
 import numpy as np
 import jax.numpy as jnp
 import hj_reachability as hj
@@ -11,11 +14,9 @@ os.makedirs('outputs/plots', exist_ok=True)
 os.makedirs('outputs/data', exist_ok=True)
 
 # Grid resolution, can scale up
-# GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse
-GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium try 2
+# GRID_RESOLUTION = (11, 11, 11, 11, 11, 11) # coarse, local runs
+GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium, VM
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21) # medium
-# GRID_RESOLUTION = (16, 16, 16, 16, 16, 16)
-# GRID_RESOLUTION = (31, 31, 31, 31, 31, 31) # fine
 
 R_CAPTURE = 1.0
 
@@ -31,10 +32,6 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
         np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
         np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
     ),
-    # hj.sets.Box(
-    #     np.array([-10., -10., -10., -10., -10., -10.]),  
-    #     np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
-    # ),
     GRID_RESOLUTION
 )
 
@@ -53,8 +50,7 @@ failure_values = (
 times = np.linspace(0, -20, 101, endpoint=True)
 # times = np.linspace(0, -0.001, 2, endpoint=True) # to check for initial BRT
 
-solver_settings = hj.SolverSettings.with_accuracy(
-    'very_high',
+solver_settings = hj.SolverSettings.with_accuracy('very_high',
     hamiltonian_postprocessor=hj.solver.backwards_reachable_tube
 )
 
@@ -65,9 +61,9 @@ values = hj.solve(solver_settings, dynamics_obj, grid, times, failure_values)
 # save outputs (for simulate.py and plot.py to use)
 np.save('outputs/data/values.npy', np.array(values))
 np.save('outputs/data/times.npy', times)
-print('Saved BRT to outputs/data/')
+print('Saved BRT to outputs/data/values.npy and outputs/data/times.npy')
 
-# safe set volume using random sampling (smae as hw2)
+# safe set volume using random sampling (same as hw2)
 values_converged = values[-1]
 values_converged_interpolator = RegularGridInterpolator(
     ([np.array(v) for v in grid.coordinate_vectors]),
@@ -80,10 +76,8 @@ batch_size  = int(1e3)
 num_batches = int(num_samples / batch_size)
 # sample_min = np.array([-5., -5., -5., -5., -5., -5.])
 # sample_max = np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
-# sample_min = np.array([-8., -8., -8., -8., -8., -8.])
-# sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
-sample_min = np.array([-10., -10., -10., -10., -10., -10.])
-sample_max = np.array([ 10.,  10.,  10.,  10.,  10.,  10.])
+sample_min = np.array([-8., -8., -8., -8., -8., -8.])
+sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
 
 num_safe = 0
 for _ in tqdm(range(num_batches)):
@@ -98,6 +92,9 @@ print(f'Safe Volume (evader wins): '
       f'{num_safe*np.prod(sample_max-sample_min)/num_samples:.3f}')
 
 # after solving, check convergence by comparing last few timesteps
+# when change between timesteps flattens (< threshold), BRT has converged
+# (happens around t=-13s from our results)
+
 values_arr = np.array(values)
 diffs = []
 for i in range(len(times)-1):

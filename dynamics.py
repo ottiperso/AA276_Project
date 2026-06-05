@@ -1,3 +1,6 @@
+# dynamics.py
+# defines the 6D relative dynamics class for HJ reachability
+
 import jax.numpy as jnp
 import hj_reachability as hj
 from hj_reachability import dynamics, sets
