@@ -21,13 +21,13 @@ GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 # GRID_RESOLUTION = (21, 21, 21, 21, 21, 21)
 
 R_CAPTURE = 1.0
-F_E_FIXED  = 2.4
-F_P_ALL    = [2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0, 5.0]
+F_E_FIXED = 2.4
+F_P_ALL = [2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0, 5.0]
 
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -46,17 +46,17 @@ solver_settings = hj.SolverSettings.with_accuracy('very_high',
 )
 
 sample_min = np.array([-8., -8., -8., -8., -8., -8.])
-sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+sample_max = np.array([ 8., 8., 8., 8., 8., 8.])
 
 domain_volume = np.prod(sample_max - sample_min)
 num_samples = int(1e6)
-batch_size  = int(1e4)
+batch_size = int(1e4)
 num_batches = int(num_samples / batch_size)
 
 # same as before
 class SweepDynamics(dynamics.ControlAndDisturbanceAffineDynamics):
     def __init__(self, f_p, f_e):
-        control_space     = sets.Box(jnp.array([-f_p]), jnp.array([f_p]))
+        control_space = sets.Box(jnp.array([-f_p]), jnp.array([f_p]))
         disturbance_space = sets.Box(jnp.array([-f_e]), jnp.array([f_e]))
         super().__init__(
             control_mode='min',
@@ -127,15 +127,15 @@ def plot_results():
         return
 
     results = np.array(rows)
-    results = results[results[:, 0].argsort()]  # sort by ratio
+    results = results[results[:, 0].argsort()] # sort by ratio
 
     np.save('outputs/data/sweep/sweep_results.npy', results)
 
     print('\nSweep Results')
-    print(f'{"Ratio":>8}  {"F_P":>6}  {"F_E":>6}  {"BRT Vol":>12}')
+    print(f'{"Ratio":>8} {"F_P":>6} {"F_E":>6} {"BRT Vol":>12}')
     print('-' * 42)
     for row in results:
-        print(f'{row[0]:>8.3f}  {row[1]:>6.1f}  {row[2]:>6.1f}  {row[3]:>12.2f}')
+        print(f'{row[0]:>8.3f} {row[1]:>6.1f} {row[2]:>6.1f} {row[3]:>12.2f}')
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -153,8 +153,7 @@ def plot_results():
 
     ax = axes[1]
     ax.plot(results[:, 1], results[:, 3], 'go-', linewidth=2, markersize=8)
-    # ax.axvline(F_E_FIXED, color='r', linestyle='--', linewidth=1.5,
-    #            label=f'$F_E$ = {F_E_FIXED} N')
+    # ax.axvline(F_E_FIXED, color='r', linestyle='--', linewidth=1.5, label=f'$F_E$ = {F_E_FIXED} N')
     ax.set_xlabel('Pursuer thrust $F_P$ (N)', fontsize=13)
     ax.set_ylabel('BRT Volume (m$^6$)', fontsize=13)
     ax.set_title('BRT Volume vs Pursuer Thrust', fontsize=13)

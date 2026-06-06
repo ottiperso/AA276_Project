@@ -23,7 +23,7 @@ IC_NAMES = ['inside_brt', 'inside_far', 'boundary', 'outside_near', 'outside_far
 results = {}
 for name in IC_NAMES:
     results[name] = dict(
-        zs  = np.load(f'outputs/data/zs_{name}.npy'),
+        zs = np.load(f'outputs/data/zs_{name}.npy'),
         p_P = np.load(f'outputs/data/p_P_{name}.npy'),
         p_E = np.load(f'outputs/data/p_E_{name}.npy'),
         FPs = np.load(f'outputs/data/FPs_{name}.npy'),
@@ -36,7 +36,7 @@ GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -63,12 +63,12 @@ dvz = np.linspace(-8, 8, 101)
 
 DPZ, DVZ = np.meshgrid(dpz, dvz)
 slice_pts = np.stack([
-    np.zeros_like(DPZ.ravel()),  # delta_px = 0
-    np.zeros_like(DPZ.ravel()),  # delta_py = 0
-    DPZ.ravel(),                 # delta_pz (x)
-    np.zeros_like(DPZ.ravel()),  # delta_vx = 0
-    np.zeros_like(DPZ.ravel()),  # delta_vy = 0
-    DVZ.ravel(),                 # delta_vz (y)
+    np.zeros_like(DPZ.ravel()), # delta_px = 0
+    np.zeros_like(DPZ.ravel()), # delta_py = 0
+    DPZ.ravel(), # delta_pz (x)
+    np.zeros_like(DPZ.ravel()), # delta_vx = 0
+    np.zeros_like(DPZ.ravel()), # delta_vy = 0
+    DVZ.ravel(), # delta_vz (y)
 ], axis=1)
 V_slice = values_converged_interpolator(slice_pts).reshape(DVZ.shape)
 
@@ -78,7 +78,7 @@ dt = 0.01
 fig = plt.figure(figsize=(24, 8))
 gs = GridSpec(1, 3, figure=fig, wspace=0.35)
 
-ax_brt  = fig.add_subplot(gs[0])
+ax_brt = fig.add_subplot(gs[0])
 ax_dist = fig.add_subplot(gs[1])
 gs_ctrl = GridSpecFromSubplotSpec(5, 1, subplot_spec=gs[2], hspace=0.7)
 ctrl_axes = [fig.add_subplot(gs_ctrl[i]) for i in range(5)]
@@ -187,7 +187,7 @@ for name in IC_NAMES:
 # figure 3: BRT (two panels: px vs pz and pz vs vz)
 def plot_brt_only(values_converged_interpolator):
     """
-    Left panel:  delta_px (x) vs delta_pz (y), slice at delta_py=0, delta_v=0
+    Left panel: delta_px (x) vs delta_pz (y), slice at delta_py=0, delta_v=0
     Righ panelt: delta_pz (x) vs delta_vz (y), slice at delta_px=delta_py=0, delta_vx=delta_vy=0
     """
     dpx = np.linspace(-8, 8, 201)
@@ -241,8 +241,7 @@ def plot_brt_only(values_converged_interpolator):
     ax.axvline( 1.0, color='g', linestyle='--', linewidth=2)
     ax.set_xlabel(r'$\Delta p_z$ (m)')
     ax.set_ylabel(r'$\Delta v_z$ (m/s)')
-    ax.set_title(r'BRT: $\Delta p_z$ vs $\Delta v_z$' '\n'
-                 r'($\Delta p_x=\Delta p_y=0$, $\Delta v_x=\Delta v_y=0$)')
+    ax.set_title(r'BRT: $\Delta p_z$ vs $\Delta v_z$' '\n' r'($\Delta p_x=\Delta p_y=0$, $\Delta v_x=\Delta v_y=0$)')
     plt.colorbar(pcm2, ax=ax, label='Value Function V')
     ax.legend(fontsize=7)
 
@@ -276,7 +275,7 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         np.zeros_like(DPZ_vel.ravel()), np.zeros_like(DPZ_vel.ravel()), DVZ.ravel(),
     ], axis=1)
 
-    n_cols = len(indices) // 2  # 4 columns
+    n_cols = len(indices) // 2 # 4 columns
     fig, axes = plt.subplots(4, n_cols, figsize=(5*n_cols, 20))
 
     for col, (idx, t) in enumerate(zip(indices, selected_times)):
@@ -289,8 +288,8 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
         V_pos = interp_t(slice_pos_pts).reshape(DPX.shape)
         V_vel = interp_t(slice_vel_pts).reshape(DPZ_vel.shape)
 
-        row_base = (col // n_cols) * 2
-        col_idx  = col % n_cols
+        # row_base = (col // n_cols) * 2
+        col_idx = col % n_cols
 
         # px vs pz
         ax = axes[col // n_cols, col_idx]
@@ -329,7 +328,7 @@ def plot_brt_over_time(values_all, times, values_converged_interpolator_fn):
 
 plot_brt_only(values_converged_interpolator)
 values_all = np.load('outputs/data/values.npy')
-times_all  = np.load('outputs/data/times.npy')
+times_all = np.load('outputs/data/times.npy')
 plot_brt_over_time(values_all, times_all, values_converged_interpolator)
 
 # also: plot BRT value function convergence over time
@@ -350,12 +349,12 @@ print('Saved outputs/plots/convergence.png')
 # also: estimate and plot BRT volume vs time horizon
 # estimates BRT volume at each timestep using Monte Carlo sampling
 
-sample_min    = np.array([-8., -8., -8., -8., -8., -8.])
-sample_max    = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+sample_min = np.array([-8., -8., -8., -8., -8., -8.])
+sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
 domain_volume = np.prod(sample_max - sample_min)
-num_samples   = int(1e5)
-batch_size    = int(1e3)
-num_batches   = int(num_samples / batch_size)
+num_samples = int(1e5)
+batch_size = int(1e3)
+num_batches = int(num_samples / batch_size)
 
 # subsample timesteps so this doesn't take forever
 step = max(1, len(times_all) // 20)  # ~20 points
@@ -372,15 +371,13 @@ for idx in tqdm(t_indices, desc='Computing BRT volumes'):
     )
     num_inside = 0
     for _ in range(num_batches):
-        samples = np.random.uniform(low=sample_min, high=sample_max,
-                                    size=(batch_size, 6))
+        samples = np.random.uniform(low=sample_min, high=sample_max, size=(batch_size, 6))
         num_inside += np.sum(interp(samples) < 0)
     volumes.append(num_inside * domain_volume / num_samples)
 
 t_plot = [times_all[i] for i in t_indices]
 
-np.save('outputs/data/brt_volume_over_time.npy',
-        np.array(list(zip(t_plot, volumes))))
+np.save('outputs/data/brt_volume_over_time.npy', np.array(list(zip(t_plot, volumes))))
 
 fig, ax = plt.subplots(figsize=(8, 5))
 ax.plot(np.abs(t_plot), volumes, 'b-o', markersize=5, linewidth=2)

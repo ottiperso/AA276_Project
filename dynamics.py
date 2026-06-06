@@ -6,8 +6,8 @@ import hj_reachability as hj
 from hj_reachability import dynamics, sets
 
 # Control bounds (pursuer more capable than evader)
-F_P_MAX = 2.50  # pursuer thrust bound
-F_E_MAX = 2.40  # evader thrust bound
+F_P_MAX = 2.50 # pursuer thrust bound
+F_E_MAX = 2.40 # evader thrust bound
 
 class PursuitEvasion(dynamics.ControlAndDisturbanceAffineDynamics):
     # 6D relative state (instead of 2D pendulum)
@@ -26,8 +26,8 @@ class PursuitEvasion(dynamics.ControlAndDisturbanceAffineDynamics):
             jnp.array([ F_E_MAX])
         )
         super().__init__(
-            control_mode='min',      # pursuer minimizes V (wants capture, V<=0)
-            disturbance_mode='max',  # evader maximizes V (wants escape, V>0)
+            control_mode='min', # pursuer minimizes V (wants capture, V<=0)
+            disturbance_mode='max', # evader maximizes V (wants escape, V>0)
             control_space=control_space,
             disturbance_space=disturbance_space
         )

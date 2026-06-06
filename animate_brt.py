@@ -24,13 +24,13 @@ args = parser.parse_args()
 
 # print('Loading BRT data...')
 values_all = np.load('outputs/data/values.npy') # (n_times, 15,15,15,15,15,15)
-times_all  = np.load('outputs/data/times.npy') # (n_times,) negative, 0 to -20
+times_all = np.load('outputs/data/times.npy') # (n_times,) negative, 0 to -20
 
 GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -82,11 +82,11 @@ for t_idx in range(len(times_all)):
 
 IC_NAMES = ['inside_brt', 'inside_far', 'boundary', 'outside_near', 'outside_far']
 IC_COLORS = {
-    'inside_brt':   'limegreen',
-    'inside_far':   'green',
-    'boundary':     'orange',
+    'inside_brt': 'limegreen',
+    'inside_far': 'green',
+    'boundary': 'orange',
     'outside_near': 'magenta',
-    'outside_far':  'red',
+    'outside_far': 'red',
 }
 
 ics_to_run = IC_NAMES if args.ic == 'all' else [args.ic]
@@ -100,14 +100,14 @@ def make_animation(ic_name):
     frames_idx = list(range(0, len(zs), args.skip))
     if frames_idx[-1] != len(zs) - 1:
         frames_idx.append(len(zs) - 1)
-    zs_frames  = zs[frames_idx]
+    zs_frames = zs[frames_idx]
     times_traj = np.array(frames_idx) * dt
 
     # map each traj frame t to nearest BRT timestep
     # at traj t, show BRT for horizon = -t (small at start, grows as t increases)
     brt_indices = []
     for traj_t in times_traj:
-        target_brt_t = -traj_t  # t=0 : brt t=0 (F set), t=8 : brt t=-8
+        target_brt_t = -traj_t # t=0 : brt t=0 (F set), t=8 : brt t=-8
         brt_idx = int(np.argmin(np.abs(times_all - target_brt_t)))
         brt_indices.append(brt_idx)
 
@@ -150,8 +150,8 @@ def make_animation(ic_name):
         pcm1.set_array(V.ravel())
 
         # redraw contours
-        cs  = ax1.contour(dpz, dvz, V, levels=[0], colors='k', linewidths=2)
-        cf  = ax1.contourf(dpz, dvz, V, levels=[V.min(), 0], colors=['red'], alpha=0.15)
+        cs = ax1.contour(dpz, dvz, V, levels=[0], colors='k', linewidths=2)
+        cf = ax1.contourf(dpz, dvz, V, levels=[V.min(), 0], colors=['red'], alpha=0.15)
         vl1 = ax1.axvline(-1.0, color='g', linestyle='--', linewidth=1.5)
         vl2 = ax1.axvline( 1.0, color='g', linestyle='--', linewidth=1.5)
         contour_artists1 = list(cs.collections) + list(cf.collections) + [vl1, vl2]
@@ -159,13 +159,13 @@ def make_animation(ic_name):
         trail1.set_data(zs_frames[:i+1, 2], zs_frames[:i+1, 5])
         dot1.set_data([zs_frames[i, 2]], [zs_frames[i, 5]])
 
-        brt_t  = times_all[brt_idx]
+        brt_t = times_all[brt_idx]
         traj_t = times_traj[i]
-        dist   = np.sqrt(zs_frames[i,0]**2 + zs_frames[i,1]**2 + zs_frames[i,2]**2)
+        dist = np.sqrt(zs_frames[i,0]**2 + zs_frames[i,1]**2 + zs_frames[i,2]**2)
         title1.set_text(
-            f'$\\Delta p_z$ vs $\\Delta v_z$  |  '
-            f't = {traj_t:.2f}s  |  '
-            f'BRT horizon = {brt_t:.1f}s  |  '
+            f'$\\Delta p_z$ vs $\\Delta v_z$ | '
+            f't = {traj_t:.2f}s | '
+            f'BRT horizon = {brt_t:.1f}s | '
             f'dist = {dist:.2f} m'
         )
         return []
@@ -191,8 +191,8 @@ def make_animation(ic_name):
     ax2.set_aspect('equal')
 
     trail2, = ax2.plot([], [], '-', color=color, alpha=0.6, linewidth=1.5)
-    dot2,   = ax2.plot([], [], 'o', color=color, markersize=10, markeredgecolor='k', markeredgewidth=1)
-    title2  = ax2.set_title('')
+    dot2, = ax2.plot([], [], 'o', color=color, markersize=10, markeredgecolor='k', markeredgewidth=1)
+    title2 = ax2.set_title('')
     contour_artists2 = []
 
     def init2():
@@ -226,9 +226,9 @@ def make_animation(ic_name):
         traj_t = times_traj[i]
         dist = np.sqrt(zs_frames[i,0]**2 + zs_frames[i,1]**2 + zs_frames[i,2]**2)
         title2.set_text(
-            f'$\\Delta p_x$ vs $\\Delta p_z$  |  '
-            f't = {traj_t:.2f}s  |  '
-            f'BRT horizon = {brt_t:.1f}s  |  '
+            f'$\\Delta p_x$ vs $\\Delta p_z$ | '
+            f't = {traj_t:.2f}s | '
+            f'BRT horizon = {brt_t:.1f}s | '
             f'dist = {dist:.2f} m'
         )
         return []

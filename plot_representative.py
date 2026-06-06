@@ -54,24 +54,20 @@ ICS = {
 for ic_name, (color, subtitle) in ICS.items():
     zs = np.load(f'outputs/data/zs_{ic_name}.npy')
     dt = 0.01
-    t  = np.arange(len(zs)) * dt
+    t = np.arange(len(zs)) * dt
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
     # panel 1: pz vs vz
     ax = axes[0]
-    ax.pcolormesh(dpz, dvz, V_pzvz, cmap='RdBu', shading='auto',
-                  vmin=-3, vmax=3, alpha=0.7)
+    ax.pcolormesh(dpz, dvz, V_pzvz, cmap='RdBu', shading='auto', vmin=-3, vmax=3, alpha=0.7)
     ax.contour(dpz, dvz, V_pzvz, levels=[0], colors='k', linewidths=2)
-    ax.contourf(dpz, dvz, V_pzvz, levels=[V_pzvz.min(), 0],
-                colors=['red'], alpha=0.15)
+    ax.contourf(dpz, dvz, V_pzvz, levels=[V_pzvz.min(), 0], colors=['red'], alpha=0.15)
     ax.axvline(-1.0, color='g', linestyle='--', linewidth=1.5, label='Capture radius')
     ax.axvline( 1.0, color='g', linestyle='--', linewidth=1.5)
     ax.plot(zs[:, 2], zs[:, 5], color=color, linewidth=2.5)
-    ax.plot(zs[0, 2], zs[0, 5], 'o', color=color, markersize=10,
-            markeredgecolor='k', label='Start')
-    ax.plot(zs[-1, 2], zs[-1, 5], 's', color=color, markersize=10,
-            markeredgecolor='k', label='End')
+    ax.plot(zs[0, 2], zs[0, 5], 'o', color=color, markersize=10, markeredgecolor='k', label='Start')
+    ax.plot(zs[-1, 2], zs[-1, 5], 's', color=color, markersize=10, markeredgecolor='k', label='End')
     ax.set_xlabel(r'$\Delta p_z$ (m)', fontsize=12)
     ax.set_ylabel(r'$\Delta v_z$ (m/s)', fontsize=12)
     ax.set_title(r'$\Delta p_z$ vs $\Delta v_z$ phase plane', fontsize=11)
@@ -82,19 +78,14 @@ for ic_name, (color, subtitle) in ICS.items():
 
     # panel 2: px vs pz
     ax = axes[1]
-    ax.pcolormesh(dpx, dpz, V_pxpz, cmap='RdBu', shading='auto',
-                  vmin=-3, vmax=3, alpha=0.7)
+    ax.pcolormesh(dpx, dpz, V_pxpz, cmap='RdBu', shading='auto', vmin=-3, vmax=3, alpha=0.7)
     ax.contour(dpx, dpz, V_pxpz, levels=[0], colors='k', linewidths=2)
-    ax.contourf(dpx, dpz, V_pxpz, levels=[V_pxpz.min(), 0],
-                colors=['red'], alpha=0.15)
+    ax.contourf(dpx, dpz, V_pxpz, levels=[V_pxpz.min(), 0], colors=['red'], alpha=0.15)
     theta = np.linspace(0, 2*np.pi, 200)
-    ax.plot(np.cos(theta), np.sin(theta), 'g--', linewidth=1.5,
-            label='Capture radius')
+    ax.plot(np.cos(theta), np.sin(theta), 'g--', linewidth=1.5, label='Capture radius')
     ax.plot(zs[:, 0], zs[:, 2], color=color, linewidth=2.5)
-    ax.plot(zs[0, 0], zs[0, 2], 'o', color=color, markersize=10,
-            markeredgecolor='k', label='Start')
-    ax.plot(zs[-1, 0], zs[-1, 2], 's', color=color, markersize=10,
-            markeredgecolor='k', label='End')
+    ax.plot(zs[0, 0], zs[0, 2], 'o', color=color, markersize=10, markeredgecolor='k', label='Start')
+    ax.plot(zs[-1, 0], zs[-1, 2], 's', color=color, markersize=10, markeredgecolor='k', label='End')
     ax.set_xlabel(r'$\Delta p_x$ (m)', fontsize=12)
     ax.set_ylabel(r'$\Delta p_z$ (m)', fontsize=12)
     ax.set_title(r'$\Delta p_x$ vs $\Delta p_z$ position plane', fontsize=11)
@@ -106,6 +97,5 @@ for ic_name, (color, subtitle) in ICS.items():
 
     fig.suptitle(f'{ic_name} — {subtitle}', fontsize=13)
     fig.tight_layout()
-    fig.savefig(f'outputs/plots/rep_trajectory_{ic_name}.png',
-                bbox_inches='tight', dpi=150)
+    fig.savefig(f'outputs/plots/rep_trajectory_{ic_name}.png', bbox_inches='tight', dpi=150)
     print(f'Saved rep_trajectory_{ic_name}.png')

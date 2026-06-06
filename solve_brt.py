@@ -26,11 +26,11 @@ R_CAPTURE = 1.0
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     # hj.sets.Box(
     #     np.array([-5., -5., -5., -5., -5., -5.]),
-    #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
+    #     np.array([ 5., 5., 5., 5., 5., 5.])
     # ),
     hj.sets.Box(
-        np.array([-8., -8., -8., -8., -8., -8.]),  # for medium case, larger bounds
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([-8., -8., -8., -8., -8., -8.]), # for medium case, larger bounds
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -41,9 +41,9 @@ grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
 # negative inside capture set (pursuer wins), positive outside (evader safe)
 failure_values = (
     jnp.sqrt(
-        grid.states[..., 0]**2 +  # delta_px
-        grid.states[..., 1]**2 +  # delta_py
-        grid.states[..., 2]**2    # delta_pz
+        grid.states[..., 0]**2 + # delta_px
+        grid.states[..., 1]**2 + # delta_py
+        grid.states[..., 2]**2 # delta_pz
     ) - R_CAPTURE
 )
 
@@ -71,13 +71,13 @@ values_converged_interpolator = RegularGridInterpolator(
     bounds_error=False,
     fill_value=None
 )
-num_samples = int(1e5)  # smaller for speed, can increase on compute engine later
-batch_size  = int(1e3)
+num_samples = int(1e5) # smaller for speed, can increase on compute engine later
+batch_size = int(1e3)
 num_batches = int(num_samples / batch_size)
 # sample_min = np.array([-5., -5., -5., -5., -5., -5.])
-# sample_max = np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
+# sample_max = np.array([ 5., 5., 5., 5., 5., 5.])
 sample_min = np.array([-8., -8., -8., -8., -8., -8.])
-sample_max = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+sample_max = np.array([ 8., 8., 8., 8., 8., 8.])
 
 num_safe = 0
 for _ in tqdm(range(num_batches)):
@@ -100,8 +100,8 @@ diffs = []
 for i in range(len(times)-1):
     diff = np.abs(values_arr[i+1] - values_arr[i]).max()
     diffs.append(diff)
-    
+
 np.save('outputs/data/convergence.npy', np.array(diffs))
 print('Max value change per timestep:')
 for i, d in enumerate(diffs[-10:]):
-    print(f'  t={times[-(10-i)]:.1f}s: {d:.6f}')
+    print(f' t={times[-(10-i)]:.1f}s: {d:.6f}')

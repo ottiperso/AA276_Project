@@ -24,7 +24,7 @@ GRID_RESOLUTION = (15, 15, 15, 15, 15, 15)
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -33,7 +33,7 @@ solver_settings = hj.SolverSettings.with_accuracy('very_high',
 )
 
 GRID_LO = np.array([-8., -8., -8., -8., -8., -8.])
-GRID_HI = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+GRID_HI = np.array([ 8., 8., 8., 8., 8., 8.])
 
 values_converged_interpolator = RegularGridInterpolator(
     ([np.array(v) for v in grid.coordinate_vectors]),
@@ -111,16 +111,16 @@ print('Running MC rollouts...')
 
 # group 1: inside / boundary / outside
 group1 = {
-    'inside':   (np.array([0., 0., -1.5,  0., 0.,  1.5]),  'green',  0.30),
-    'boundary': (np.array([0., 0.,  1.545, 0., 0.,  0.773]), 'orange', 0.15),
-    'outside':  (np.array([0., 0.,  3.5,  0., 0.,  1.75]), 'red',    0.30),
+    'inside': (np.array([0., 0., -1.5, 0., 0., 1.5]), 'green', 0.30),
+    'boundary': (np.array([0., 0., 1.545, 0., 0., 0.773]), 'orange', 0.15),
+    'outside': (np.array([0., 0., 3.5, 0., 0., 1.75]), 'red', 0.30),
 }
 
 # group 2: 3 boundary points from diff dirs
 group2 = {
-    'boundary\_pz':   (np.array([0., 0.,  3.056, 0., 0.,  0.0]),   'purple', 0.15),
-    'boundary\_dvz':  (np.array([0., 0.,  2.0,   0., 0.,  0.455]), 'blue',   0.15),
-    'boundary\_diag': (np.array([0., 0.,  1.545, 0., 0.,  0.773]), 'orange', 0.15),
+    'boundary\_pz': (np.array([0., 0., 3.056, 0., 0., 0.0]), 'purple', 0.15),
+    'boundary\_dvz': (np.array([0., 0., 2.0,  0., 0., 0.455]), 'blue', 0.15),
+    'boundary\_diag': (np.array([0., 0., 1.545, 0., 0., 0.773]), 'orange', 0.15),
 }
 
 def plot_mc_panel(ax, group, title):
@@ -175,11 +175,11 @@ print('Saved outputs/plots/mc_rollouts.png')
 print('\nRunning controller comparison...')
 
 all_ics = {
-    'inside_brt':   np.array([0., 0., -1.5,  0., 0.,  1.5]),
-    'inside_far':   np.array([0., 0.,  1.5,  0., 0., -0.5]),
-    'boundary':     np.array([0., 0.,  2.0,  0., 0.,  0.5]),
-    'outside_near': np.array([0., 0.,  3.5,  0., 0.,  1.75]),
-    'outside_far':  np.array([0., 0.,  4.0,  0., 0.,  2.0]),
+    'inside_brt': np.array([0., 0., -1.5, 0., 0., 1.5]),
+    'inside_far': np.array([0., 0., 1.5, 0., 0., -0.5]),
+    'boundary': np.array([0., 0., 2.0, 0., 0., 0.5]),
+    'outside_near': np.array([0., 0., 3.5, 0., 0., 1.75]),
+    'outside_far': np.array([0., 0., 4.0, 0., 0., 2.0]),
 }
 
 comparison_results = {}
@@ -187,19 +187,19 @@ for ic_name, z0 in all_ics.items():
     V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
     brt_class = 'inside' if V0 < 0 else ('boundary' if abs(V0) < 0.1 else 'outside')
 
-    _, opt_cap,   opt_t   = simulate_simple(z0, optimal_pursuer, optimal_evader, nt, dt)
+    _, opt_cap, opt_t = simulate_simple(z0, optimal_pursuer, optimal_evader, nt, dt)
     _, naive_cap, naive_t = simulate_simple(z0, naive_pursuer,   optimal_evader, nt, dt)
 
     comparison_results[ic_name] = {
-        'z0':        z0.tolist(),
-        'V0':        round(V0, 4),
+        'z0': z0.tolist(),
+        'V0': round(V0, 4),
         'brt_class': brt_class,
-        'optimal':   {'captured': opt_cap,   'capture_t': round(opt_t,   3) if opt_t   else None},
-        'naive':     {'captured': naive_cap, 'capture_t': round(naive_t, 3) if naive_t else None},
+        'optimal': {'captured': opt_cap, 'capture_t': round(opt_t, 3) if opt_t else None},
+        'naive': {'captured': naive_cap, 'capture_t': round(naive_t, 3) if naive_t else None},
     }
 
-    print(f'{ic_name:15s}  V={V0:+.4f}  '
-          f'optimal={"cap@"+f"{opt_t:.2f}s" if opt_cap else "escaped":18s}  '
+    print(f'{ic_name:15s} V={V0:+.4f} '
+          f'optimal={"cap@"+f"{opt_t:.2f}s" if opt_cap else "escaped":18s} '
           f'naive={"cap@"+f"{naive_t:.2f}s" if naive_cap else "escaped"}')
 
 with open('outputs/data/controller_comparison.json', 'w') as f:
@@ -213,7 +213,7 @@ fig2, axes2 = plt.subplots(2, len(all_ics), figsize=(5*len(all_ics), 10))
 for col, (ic_name, z0) in enumerate(all_ics.items()):
     for row, (pursuer_fn, label, color) in enumerate([
         (optimal_pursuer, 'Optimal HJI', 'steelblue'),
-        (naive_pursuer,   'Naive (+z)',  'darkorange'),
+        (naive_pursuer, 'Naive (+z)', 'darkorange'),
     ]):
         ax = axes2[row, col]
         ax.pcolormesh(dpz, dvz, V_bg, cmap='RdBu', shading='auto', vmin=-3, vmax=3, alpha=0.6)

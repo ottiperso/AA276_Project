@@ -49,7 +49,7 @@ R_CAPTURE = 1.0
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -58,7 +58,7 @@ solver_settings = hj.SolverSettings.with_accuracy('very_high',
 )
 
 GRID_LO = np.array([-8., -8., -8., -8., -8., -8.])
-GRID_HI = np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+GRID_HI = np.array([ 8., 8., 8., 8., 8., 8.])
 
 values_converged_interpolator = RegularGridInterpolator(
     ([np.array(v) for v in grid.coordinate_vectors]),
@@ -106,7 +106,7 @@ if args.sample_inside_only:
     # sample from a tighter box around the BRT
     # BRT shape: pz in ~[-3,3], vz in ~[-3,3], px/py/vx/vy small
     sample_lo = np.array([-2., -2., -3., -2., -2., -3.])
-    sample_hi = np.array([ 2.,  2.,  3.,  2.,  2.,  3.])
+    sample_hi = np.array([ 2., 2., 3., 2., 2., 3.])
     print(f'Sampling from near BRT: {sample_lo} to {sample_hi}')
 else:
     sample_lo = GRID_LO
@@ -120,7 +120,7 @@ z0_samples = np.random.uniform(
 
 # V at each sample
 V0s = values_converged_interpolator(z0_samples).ravel()
-inside_brt_mask  = V0s < 0
+inside_brt_mask = V0s < 0
 outside_brt_mask = V0s >= 0
 
 print(f'Total samples: {args.n_samples}')
@@ -135,9 +135,9 @@ nt = int(args.t_horizon / args.dt)
 # results
 outcomes = []
 
-failing_trajectories = []  # inside BRT, never captured (BRT violations)
-surprise_captures = []  # outside BRT, got captured anyway
-grid_exits = []  # left grid domain
+failing_trajectories = [] # inside BRT, never captured (BRT violations)
+surprise_captures = [] # outside BRT, got captured anyway
+grid_exits = [] # left grid domain
 
 for idx in tqdm(range(args.n_samples), desc='Simulating'):
     z0 = z0_samples[idx]
@@ -145,11 +145,11 @@ for idx in tqdm(range(args.n_samples), desc='Simulating'):
     started_inside = bool(inside_brt_mask[idx])
 
     z = z0.copy()
-    trajectory  = [z.copy()]
-    captured    = False
+    trajectory = [z.copy()]
+    captured = False
     exited_grid = False
-    capture_t   = None
-    exit_t      = None
+    capture_t = None
+    exit_t = None
 
     for step in range(nt):
         if outside_grid(z):
@@ -163,7 +163,7 @@ for idx in tqdm(range(args.n_samples), desc='Simulating'):
         trajectory.append(z.copy())
 
         if in_failure_set(z):
-            captured  = True
+            captured = True
             capture_t = (step + 1) * args.dt
             break
 
@@ -211,9 +211,9 @@ for idx in tqdm(range(args.n_samples), desc='Simulating'):
 inside_indices = [i for i, o in enumerate(outcomes) if o['started_inside']]
 outside_indices = [i for i, o in enumerate(outcomes) if not o['started_inside']]
 
-inside_captured = [i for i in inside_indices  if outcomes[i]['captured']]
-inside_not_captured = [i for i in inside_indices  if not outcomes[i]['captured'] and not outcomes[i]['exited_grid']]
-inside_exited = [i for i in inside_indices  if outcomes[i]['exited_grid']]
+inside_captured = [i for i in inside_indices if outcomes[i]['captured']]
+inside_not_captured = [i for i in inside_indices if not outcomes[i]['captured'] and not outcomes[i]['exited_grid']]
+inside_exited = [i for i in inside_indices if outcomes[i]['exited_grid']]
 outside_captured = [i for i in outside_indices if outcomes[i]['captured']]
 outside_not_cap = [i for i in outside_indices if not outcomes[i]['captured'] and not outcomes[i]['exited_grid']]
 outside_exited = [i for i in outside_indices if outcomes[i]['exited_grid']]
@@ -224,18 +224,18 @@ print('\n' + '='*55)
 print('BRT VALIDATION RESULTS')
 print('='*55)
 print(f'\nINSIDE BRT ({len(inside_indices)} samples):')
-print(f'  Captured (correct): {len(inside_captured):4d}  ({100*len(inside_captured)/max(1,len(inside_indices)):.1f}%)')
-print(f'  Not captured (VIOLATIONS): {len(inside_not_captured):4d}  ({100*len(inside_not_captured)/max(1,len(inside_indices)):.1f}%)')
-print(f'  Exited grid: {len(inside_exited):4d}  ({100*len(inside_exited)/max(1,len(inside_indices)):.1f}%)')
+print(f' Captured (correct): {len(inside_captured):4d} ({100*len(inside_captured)/max(1,len(inside_indices)):.1f}%)')
+print(f' Not captured (VIOLATIONS): {len(inside_not_captured):4d} ({100*len(inside_not_captured)/max(1,len(inside_indices)):.1f}%)')
+print(f' Exited grid: {len(inside_exited):4d} ({100*len(inside_exited)/max(1,len(inside_indices)):.1f}%)')
 if capture_times_inside:
-    print(f'  Mean capture time: {np.mean(capture_times_inside):.2f}s')
-    print(f'  Median capture time: {np.median(capture_times_inside):.2f}s')
-    print(f'  Max capture time: {np.max(capture_times_inside):.2f}s')
+    print(f' Mean capture time: {np.mean(capture_times_inside):.2f}s')
+    print(f' Median capture time: {np.median(capture_times_inside):.2f}s')
+    print(f' Max capture time: {np.max(capture_times_inside):.2f}s')
 
 print(f'\nOUTSIDE BRT ({len(outside_indices)} samples):')
-print(f'  Not captured (correct): {len(outside_not_cap):4d}  ({100*len(outside_not_cap)/max(1,len(outside_indices)):.1f}%)')
-print(f'  Captured (notable): {len(outside_captured):4d}  ({100*len(outside_captured)/max(1,len(outside_indices)):.1f}%)')
-print(f'  Exited grid: {len(outside_exited):4d}  ({100*len(outside_exited)/max(1,len(outside_indices)):.1f}%)')
+print(f' Not captured (correct): {len(outside_not_cap):4d} ({100*len(outside_not_cap)/max(1,len(outside_indices)):.1f}%)')
+print(f' Captured (notable): {len(outside_captured):4d} ({100*len(outside_captured)/max(1,len(outside_indices)):.1f}%)')
+print(f' Exited grid: {len(outside_exited):4d} ({100*len(outside_exited)/max(1,len(outside_indices)):.1f}%)')
 
 print(f'\nBRT GUARANTEE VIOLATION RATE: {len(inside_not_captured)}/{len(inside_indices)} = {100*len(inside_not_captured)/max(1,len(inside_indices)):.2f}%')
 print('(violations expected ~0% for correct BRT; nonzero due to grid resolution)')
@@ -244,23 +244,23 @@ print('='*55)
 suffix = '_targeted' if args.sample_inside_only else '_uniform'
 
 summary = dict(
-    n_samples           = args.n_samples,
-    t_horizon           = args.t_horizon,
-    dt                  = args.dt,
-    seed                = args.seed,
-    sample_mode         = 'targeted' if args.sample_inside_only else 'uniform',
-    n_inside_brt        = len(inside_indices),
-    n_outside_brt       = len(outside_indices),
-    n_inside_captured   = len(inside_captured),
+    n_samples = args.n_samples,
+    t_horizon = args.t_horizon,
+    dt = args.dt,
+    seed = args.seed,
+    sample_mode = 'targeted' if args.sample_inside_only else 'uniform',
+    n_inside_brt = len(inside_indices),
+    n_outside_brt = len(outside_indices),
+    n_inside_captured = len(inside_captured),
     n_inside_violations = len(inside_not_captured),
-    n_inside_exited     = len(inside_exited),
-    n_outside_captured  = len(outside_captured),
-    n_outside_not_cap   = len(outside_not_cap),
-    n_outside_exited    = len(outside_exited),
-    capture_time_mean   = float(np.mean(capture_times_inside))   if capture_times_inside else None,
+    n_inside_exited = len(inside_exited),
+    n_outside_captured = len(outside_captured),
+    n_outside_not_cap = len(outside_not_cap),
+    n_outside_exited = len(outside_exited),
+    capture_time_mean = float(np.mean(capture_times_inside)) if capture_times_inside else None,
     capture_time_median = float(np.median(capture_times_inside)) if capture_times_inside else None,
-    capture_time_max    = float(np.max(capture_times_inside))    if capture_times_inside else None,
-    violation_rate      = len(inside_not_captured) / max(1, len(inside_indices)),
+    capture_time_max = float(np.max(capture_times_inside)) if capture_times_inside else None,
+    violation_rate = len(inside_not_captured) / max(1, len(inside_indices)),
 )
 
 with open(f'outputs/data/validation_summary{suffix}.json', 'w') as f:
@@ -281,10 +281,10 @@ inside_viol_V = [outcomes[i]['V0'] for i in inside_not_captured]
 outside_cap_V = [outcomes[i]['V0'] for i in outside_captured]
 outside_ok_V = [outcomes[i]['V0'] for i in outside_not_cap]
 
-ax.hist(inside_cap_V,  bins=30, alpha=0.6, color='green', label=f'Inside$\\to$captured ({len(inside_cap_V)})')
+ax.hist(inside_cap_V, bins=30, alpha=0.6, color='green', label=f'Inside$\\to$captured ({len(inside_cap_V)})')
 ax.hist(inside_viol_V, bins=30, alpha=0.6, color='red', label=f'Inside$\\to$NOT captured ({len(inside_viol_V)}) VIOLATIONS')
 ax.hist(outside_cap_V, bins=30, alpha=0.6, color='orange', label=f'Outside$\\to$captured ({len(outside_cap_V)})')
-ax.hist(outside_ok_V,  bins=30, alpha=0.6, color='blue', label=f'Outside$\\to$escaped ({len(outside_ok_V)})')
+ax.hist(outside_ok_V, bins=30, alpha=0.6, color='blue', label=f'Outside$\\to$escaped ({len(outside_ok_V)})')
 ax.axvline(0, color='k', linestyle='--', linewidth=2, label='BRT boundary ($V=0$)')
 ax.set_xlabel('$V(z_0)$', fontsize=12)
 ax.set_ylabel('Count', fontsize=12)

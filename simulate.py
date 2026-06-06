@@ -12,7 +12,7 @@ from dynamics import PursuitEvasion, F_P_MAX, F_E_MAX
 
 # BRT outputs from solve_brt.py
 values = np.load('outputs/data/values.npy')
-times  = np.load('outputs/data/times.npy')
+times = np.load('outputs/data/times.npy')
 values_converged = values[-1]
 
 # same grid as solve_brt.py
@@ -23,11 +23,11 @@ GRID_RESOLUTION = (15, 15, 15, 15, 15, 15) # medium
 grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
     # hj.sets.Box(
     #     np.array([-5., -5., -5., -5., -5., -5.]),
-    #     np.array([ 5.,  5.,  5.,  5.,  5.,  5.])
+    #     np.array([ 5., 5., 5., 5., 5., 5.])
     # ),
     hj.sets.Box(
         np.array([-8., -8., -8., -8., -8., -8.]),
-        np.array([ 8.,  8.,  8.,  8.,  8.,  8.])
+        np.array([ 8., 8., 8., 8., 8., 8.])
     ),
     GRID_RESOLUTION
 )
@@ -80,31 +80,31 @@ def evader_optimal(z):
 
 # CONTROLLERS
 def pursuer_control(z):
-    return pursuer_optimal(z)       # optimal pursuer
-    # return F_P_MAX                # nominal: full thrust up
+    return pursuer_optimal(z)  # optimal pursuer
+    # return F_P_MAX # nominal: full thrust up
 
 def evader_control(z):
-    return evader_optimal(z)        # optimal evader
-    # return 0.0                    # nominal: no thrust
+    return evader_optimal(z) # optimal evader
+    # return 0.0 # nominal: no thrust
 
 # Euler step for 6D relative dynamics
 def euler_step(z, F_P, F_E, dt=0.01):
     dzdt = np.array([
-        z[3],  # d(delta_px)/dt = delta_vx
-        z[4],  # d(delta_py)/dt = delta_vy
-        z[5],  # d(delta_pz)/dt = delta_vz
-        0.,  # d(delta_vx)/dt = 0 (near-hover)
-        0.,  # d(delta_vy)/dt = 0 (near-hover)
-        float(F_P) - float(F_E)  # d(delta_vz)/dt = F_P - F_E
+        z[3], # d(delta_px)/dt = delta_vx
+        z[4], # d(delta_py)/dt = delta_vy
+        z[5], # d(delta_pz)/dt = delta_vz
+        0., # d(delta_vx)/dt = 0 (near-hover)
+        0., # d(delta_vy)/dt = 0 (near-hover)
+        float(F_P) - float(F_E) # d(delta_vz)/dt = F_P - F_E
     ])
     return z + dt * dzdt
 
 def simulate(z0, nt, dt=0.01):
-    zs   = np.full((nt+1, 6), fill_value=np.nan)
+    zs = np.full((nt+1, 6), fill_value=np.nan)
     # track individual drone posns separately
     # integrate forward
-    p_P  = np.full((nt+1, 3), fill_value=np.nan)
-    p_E  = np.full((nt+1, 3), fill_value=np.nan)
+    p_P = np.full((nt+1, 3), fill_value=np.nan)
+    p_E = np.full((nt+1, 3), fill_value=np.nan)
     F_Ps = np.full(nt, fill_value=np.nan)
     F_Es = np.full(nt, fill_value=np.nan)
 
@@ -121,7 +121,7 @@ def simulate(z0, nt, dt=0.01):
 
     captured = False
     for i in tqdm(range(nt)):
-        z   = zs[i]
+        z = zs[i]
         F_P = pursuer_control(z)
         F_E = evader_control(z)
 
@@ -139,22 +139,22 @@ def simulate(z0, nt, dt=0.01):
         # evader: only F_E affects vz
         # v_E[2] += float(F_E) * dt
         # p_E[i+1] = p_E[i] + v_E * dt
-        p_E[i+1] = p_E[i] + v_E * dt  # position first
+        p_E[i+1] = p_E[i] + v_E * dt # position first
         p_P[i+1] = p_P[i] + v_P * dt
 
         # pursuer: only F_P affects vz
         # v_P[2] += float(F_P) * dt
         # p_P[i+1] = p_P[i] + v_P * dt
-        v_E[2] += float(F_E) * dt     # then velocity
+        v_E[2] += float(F_E) * dt # then velocity
         v_P[2] += float(F_P) * dt
 
         dist = np.sqrt(z[0]**2 + z[1]**2 + z[2]**2)
         if dist <= 1.0:
             print(f'Capture at t={i*dt:.2f}s!')
             captured = True
-            zs   = zs[:i+1]
-            p_P  = p_P[:i+1]
-            p_E  = p_E[:i+1]
+            zs = zs[:i+1]
+            p_P = p_P[:i+1]
+            p_E = p_E[:i+1]
             F_Ps = F_Ps[:i]
             F_Es = F_Es[:i]
             break
@@ -166,20 +166,20 @@ def simulate(z0, nt, dt=0.01):
 # two initial conditions to test (6D initial states instead of 2D)
 
 # inside BRT: pursuer should capture
-# z0_inside  = np.array([0., 0., -1.5, 0., 0.,  1.5])  # approaching in z
+# z0_inside = np.array([0., 0., -1.5, 0., 0., 1.5]) # approaching in z
 
 # outside BRT: evader should escape
 # z0_outside = np.array([0.,0.,5.,0.,0.,4.])
 # z0_outside = np.array([0., 0., 4., 0., 0., 0.])
 
 initial_conditions = {
-    'inside_brt':   np.array([0., 0., -1.5, 0., 0.,  1.5]),  # approaching, captures fast
-    'inside_far':   np.array([0., 0.,  1.5, 0., 0., -0.5]),  # just inside, slow
-    'boundary':     np.array([0., 0.,  2.0, 0., 0.,  0.5]),  # near V=0 contour
-    # 'outside_near': np.array([0., 0.,  3.0, 0., 0.,  1.5]),  # outside, retreating
-    'outside_near': np.array([0., 0.,  3.5, 0., 0.,  1.5]),  # outside, retreating
-    # 'outside_far':  np.array([0., 0.,  4.0, 0., 0.,  0.0]),  # far, zero velocity
-    'outside_far':  np.array([0., 0.,  4.0, 0., 0.,  2.0]),  # far, zero velocity
+    'inside_brt': np.array([0., 0., -1.5, 0., 0., 1.5]), # approaching, captures fast
+    'inside_far': np.array([0., 0., 1.5, 0., 0., -0.5]), # just inside, slow
+    'boundary': np.array([0., 0., 2.0, 0., 0., 0.5]), # near V=0 contour
+    # 'outside_near': np.array([0., 0., 3.0, 0., 0., 1.5]), # outside, retreating
+    'outside_near': np.array([0., 0., 3.5, 0., 0., 1.5]), # outside, retreating
+    # 'outside_far': np.array([0., 0., 4.0, 0., 0., 0.0]), # far, zero velocity
+    'outside_far': np.array([0., 0., 4.0, 0., 0., 2.0]), # far, zero velocity
 }
 
 dt = 0.01
@@ -192,11 +192,11 @@ for name, z0 in initial_conditions.items():
     results[name] = dict(zs=zs, p_P=p_P, p_E=p_E, FPs=FPs, FEs=FEs, z0=z0)
     V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
     print(f'V(z0) = {V0:.4f} ({"inside" if V0 < 0 else "outside"} BRT)')
-    np.save(f'outputs/data/zs_{name}.npy',   zs)
-    np.save(f'outputs/data/p_P_{name}.npy',  p_P)
-    np.save(f'outputs/data/p_E_{name}.npy',  p_E)
-    np.save(f'outputs/data/FPs_{name}.npy',  FPs)
-    np.save(f'outputs/data/FEs_{name}.npy',  FEs)
+    np.save(f'outputs/data/zs_{name}.npy', zs)
+    np.save(f'outputs/data/p_P_{name}.npy', p_P)
+    np.save(f'outputs/data/p_E_{name}.npy', p_E)
+    np.save(f'outputs/data/FPs_{name}.npy', FPs)
+    np.save(f'outputs/data/FEs_{name}.npy', FEs)
 
 print('\nSaved all trajectories.')
 
@@ -204,4 +204,4 @@ print('\nSaved all trajectories.')
 print('\nV(z0) summary:')
 for name, z0 in initial_conditions.items():
     V0 = values_converged_interpolator(z0.reshape(1,-1)).item()
-    print(f'  {name:20s}: V={V0:+.4f}  z0={z0}')
+    print(f' {name:20s}: V={V0:+.4f} z0={z0}')
